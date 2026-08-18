@@ -3,15 +3,26 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing semantic tag to publish, e.g. v0.1.0
+        required: true
+        type: string
+
+concurrency:
+  group: unetic-web-release-${{ inputs.tag || github.event.release.tag_name || github.ref_name }}
+  cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   release:
-    uses: Unetic/.github/.github/workflows/release.yml@afe9daad37b076fdcad596659682b00cc3c5248d
+    uses: Unetic/packages/.github/workflows/reusable-web.yml@main
     with:
-      build-kind: web
-    permissions:
-      contents: write
+      release: true
+      ref: ${{ inputs.tag || github.event.release.tag_name || github.ref_name }}
