@@ -1,4 +1,74 @@
-<main>
-  <h1>Unetic</h1>
-  <router-outlet />
+<main class="shell">
+  <section class="card">
+    <header>
+      <div class="mark">U</div>
+      <div>
+        <h1>Unetic</h1>
+        <p>{{ store.connected() ? 'Connected' : 'Connecting…' }}</p>
+      </div>
+    </header>
+
+    @if (store.loginRequired()) {
+      <form (ngSubmit)="login()" class="form">
+        <label>
+          Username
+          <input
+            autocomplete="username"
+            [ngModel]="username()"
+            (ngModelChange)="username.set($event)"
+            name="username"
+          />
+        </label>
+
+        <label>
+          Password
+          <input
+            type="password"
+            autocomplete="current-password"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            name="password"
+          />
+        </label>
+
+        <button type="submit">Sign in</button>
+      </form>
+    } @else if (store.state(); as state) {
+      <div class="form">
+        <label>
+          Wi-Fi name
+          <input
+            [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+            [ngModel]="store.draftSsid()"
+            (ngModelChange)="store.draftSsid.set($event)"
+            maxlength="32"
+          />
+        </label>
+
+        <button type="button" [disabled]="!store.canSave()" (click)="save()">
+          {{ store.saving() ? 'Applying…' : 'Save' }}
+        </button>
+
+        <div class="meta">
+          <span>rev {{ state.revision }}</span>
+          <span>{{ state.wifi.status }}</span>
+          @if (state.maintenance.enabled) {
+            <span>maintenance</span>
+          }
+        </div>
+
+        @if (state.active_operation; as operation) {
+          <p class="status">
+            {{ operation.status }} → {{ operation.requested_ssid }}
+          </p>
+        }
+
+        @if (store.error(); as error) {
+          <p class="error">{{ error }}</p>
+        }
+      </div>
+    } @else {
+      <p class="status">Loading router state…</p>
+    }
+  </section>
 </main>
