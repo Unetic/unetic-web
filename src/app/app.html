@@ -34,39 +34,187 @@
         <button type="submit">Sign in</button>
       </form>
     } @else if (store.state(); as state) {
-      <div class="form">
-        <label>
-          Wi-Fi name
-          <input
-            [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
-            [ngModel]="store.draftSsid()"
-            (ngModelChange)="store.draftSsid.set($event)"
-            maxlength="32"
-          />
-        </label>
-
-        <button type="button" [disabled]="!store.canSave()" (click)="save()">
-          {{ store.saving() ? 'Applying…' : 'Save' }}
+      <nav class="tabs">
+        <button
+          type="button"
+          class="tab"
+          [class.active]="store.activeTab() === 'wifi'"
+          (click)="store.activeTab.set('wifi')"
+        >
+          Wi-Fi
         </button>
+        <button
+          type="button"
+          class="tab"
+          [class.active]="store.activeTab() === 'wan'"
+          (click)="store.activeTab.set('wan')"
+        >
+          Internet (WAN)
+        </button>
+      </nav>
 
-        <div class="meta">
-          <span>rev {{ state.revision }}</span>
-          <span>{{ state.wifi.status }}</span>
-          @if (state.maintenance.enabled) {
-            <span>maintenance</span>
-          }
+      @if (store.activeTab() === 'wifi') {
+        <div class="form">
+          <label>
+            Wi-Fi name
+            <input
+              [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+              [ngModel]="store.draftSsid()"
+              (ngModelChange)="store.draftSsid.set($event)"
+              maxlength="32"
+            />
+          </label>
+
+          <button type="button" [disabled]="!store.canSave()" (click)="save()">
+            {{ store.saving() ? 'Applying…' : 'Save Wi-Fi' }}
+          </button>
         </div>
+      } @else if (store.activeTab() === 'wan') {
+        <div class="form">
+          <div class="wan-banner">
+            <span class="badge" [attr.data-status]="state.wan.status">
+              {{ state.wan.status }}
+            </span>
+            @if (state.wan.ip_address) {
+              <span class="wan-ip">{{ state.wan.ip_address }}</span>
+            }
+          </div>
 
-        @if (state.active_operation; as operation) {
-          <p class="status">
-            {{ operation.status }} → {{ operation.requested_ssid }}
-          </p>
-        }
+          <label>
+            Protocol
+            <select
+              [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+              [ngModel]="store.draftWanProto()"
+              (ngModelChange)="store.draftWanProto.set($event)"
+            >
+              <option value="dhcp">DHCP (Automatic)</option>
+              <option value="static">Static IP</option>
+              <option value="pppoe">PPPoE</option>
+              <option value="none">Disabled</option>
+            </select>
+          </label>
 
-        @if (store.error(); as error) {
-          <p class="error">{{ error }}</p>
+          @if (store.draftWanProto() === 'static') {
+            <label>
+              IP Address
+              <input
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanIp()"
+                (ngModelChange)="store.draftWanIp.set($event)"
+                placeholder="192.168.1.100"
+              />
+            </label>
+
+            <label>
+              Netmask
+              <input
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanNetmask()"
+                (ngModelChange)="store.draftWanNetmask.set($event)"
+                placeholder="255.255.255.0"
+              />
+            </label>
+
+            <label>
+              Gateway
+              <input
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanGateway()"
+                (ngModelChange)="store.draftWanGateway.set($event)"
+                placeholder="192.168.1.1"
+              />
+            </label>
+          }
+
+          @if (store.draftWanProto() === 'pppoe') {
+            <label>
+              Username
+              <input
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanUsername()"
+                (ngModelChange)="store.draftWanUsername.set($event)"
+                placeholder="username"
+              />
+            </label>
+
+            <label>
+              Password
+              <input
+                type="password"
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanPassword()"
+                (ngModelChange)="store.draftWanPassword.set($event)"
+              />
+            </label>
+
+            <label>
+              Service Name (optional)
+              <input
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanServiceName()"
+                (ngModelChange)="store.draftWanServiceName.set($event)"
+                placeholder="ISP service name"
+              />
+            </label>
+          }
+
+          @if (store.draftWanProto() !== 'none') {
+            <label>
+              DNS Servers (optional)
+              <input
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanDns()"
+                (ngModelChange)="store.draftWanDns.set($event)"
+                placeholder="1.1.1.1, 8.8.8.8"
+              />
+            </label>
+
+            <label>
+              Clone MAC Address (optional)
+              <input
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanMac()"
+                (ngModelChange)="store.draftWanMac.set($event)"
+                placeholder="00:11:22:33:44:55"
+              />
+            </label>
+
+            <label>
+              Custom MTU (optional)
+              <input
+                type="number"
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="store.draftWanMtu()"
+                (ngModelChange)="store.draftWanMtu.set($event)"
+                placeholder="1500"
+              />
+            </label>
+          }
+
+          <button type="button" [disabled]="!store.canSaveWan()" (click)="saveWan()">
+            {{ store.saving() ? 'Applying…' : 'Save WAN Settings' }}
+          </button>
+        </div>
+      }
+
+      <div class="meta">
+        <span>rev {{ state.revision }}</span>
+        <span>wifi: {{ state.wifi.status }}</span>
+        <span>wan: {{ state.wan.status }}</span>
+        @if (state.maintenance.enabled) {
+          <span>maintenance</span>
         }
       </div>
+
+      @if (state.active_operation; as operation) {
+        <p class="status">
+          {{ operation.kind }}: {{ operation.status }}
+        </p>
+      }
+
+      @if (store.error(); as error) {
+        <p class="error">{{ error }}</p>
+      }
     } @else {
       <p class="status">Loading router state…</p>
     }

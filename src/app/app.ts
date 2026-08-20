@@ -26,4 +26,8 @@ export class App implements OnInit {
   save(): void {
     void this.store.saveSsid();
   }
+
+  saveWan(): void {
+    void this.store.saveWan();
+  }
 }

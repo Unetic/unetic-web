@@ -1,12 +1,25 @@
 import { Injectable, computed, signal } from '@angular/core';
 
-import { ApiEnvelope, OperationAccepted, PublicState } from './models';
+import { ApiEnvelope, OperationAccepted, PublicState, WanProtocol } from './models';
 import { UbusClient } from './ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class UneticStore {
   readonly state = signal<PublicState | null>(null);
+  readonly activeTab = signal<'wifi' | 'wan'>('wifi');
   readonly draftSsid = signal('');
+
+  readonly draftWanProto = signal<WanProtocol>('dhcp');
+  readonly draftWanIp = signal('');
+  readonly draftWanNetmask = signal('255.255.255.0');
+  readonly draftWanGateway = signal('');
+  readonly draftWanDns = signal('');
+  readonly draftWanUsername = signal('');
+  readonly draftWanPassword = signal('');
+  readonly draftWanServiceName = signal('');
+  readonly draftWanMac = signal('');
+  readonly draftWanMtu = signal<number | null>(null);
+
   readonly connected = signal(false);
   readonly loginRequired = signal(true);
   readonly error = signal<string | null>(null);
@@ -14,6 +27,7 @@ export class UneticStore {
   readonly saving = computed(
     () => this.state()?.active_operation?.source === 'user',
   );
+
   readonly canSave = computed(() => {
     const state = this.state();
     return (
@@ -24,6 +38,25 @@ export class UneticStore {
       this.isValidSsid(this.draftSsid()) &&
       this.draftSsid() !== state.wifi.ssid
     );
+  });
+
+  readonly canSaveWan = computed(() => {
+    const state = this.state();
+    if (!state || state.lifecycle !== 'ready' || state.maintenance.enabled || !!state.active_operation) {
+      return false;
+    }
+    const proto = this.draftWanProto();
+    if (proto === 'static') {
+      return (
+        this.draftWanIp().trim().length > 0 &&
+        this.draftWanNetmask().trim().length > 0 &&
+        this.draftWanGateway().trim().length > 0
+      );
+    }
+    if (proto === 'pppoe') {
+      return this.draftWanUsername().trim().length > 0;
+    }
+    return true;
   });
 
   private lastServerSsid: string | null = null;
@@ -78,6 +111,67 @@ export class UneticStore {
       if (!envelope.ok || envelope.result?.noop) {
         this.currentRequestId = null;
         this.draftSsid.set(envelope.state.wifi.ssid);
+      }
+    } catch {
+      this.connected.set(false);
+      this.error.set('Connection lost — checking the result…');
+      this.scheduleReconnect();
+    }
+  }
+
+  async saveWan(): Promise<void> {
+    const state = this.state();
+    if (!state || !this.canSaveWan()) {
+      return;
+    }
+
+    this.error.set(null);
+    const requestId = crypto.randomUUID();
+    this.currentRequestId = requestId;
+
+    const proto = this.draftWanProto();
+    const dnsList = this.draftWanDns()
+      .trim()
+      .split(/[\s,]+/)
+      .filter((d) => d.length > 0);
+
+    const wanPayload = {
+      present: proto !== 'none',
+      proto,
+      custom_mac: this.draftWanMac().trim() || null,
+      custom_mtu: this.draftWanMtu() || null,
+      custom_dns: dnsList,
+      static_config:
+        proto === 'static'
+          ? {
+              ip_address: this.draftWanIp().trim(),
+              netmask: this.draftWanNetmask().trim(),
+              gateway: this.draftWanGateway().trim(),
+              dns: dnsList,
+            }
+          : null,
+      pppoe_config:
+        proto === 'pppoe'
+          ? {
+              username: this.draftWanUsername().trim(),
+              password: this.draftWanPassword() || null,
+              service_name: this.draftWanServiceName().trim() || null,
+            }
+          : null,
+    };
+
+    try {
+      const envelope = await this.ubus.call<ApiEnvelope<OperationAccepted>>(
+        'wan.set',
+        {
+          wan: wanPayload,
+          expected_revision: state.revision,
+          request_id: requestId,
+        },
+      );
+      this.applyEnvelope(envelope);
+      if (!envelope.ok || envelope.result?.noop) {
+        this.currentRequestId = null;
       }
     } catch {
       this.connected.set(false);
