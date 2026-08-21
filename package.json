@@ -1,6 +1,6 @@
 {
   "name": "unetic-web",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "description": "Web interface for the Unetic OpenWrt control plane",
   "license": "GPL-2.0-only",
