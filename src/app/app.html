@@ -59,6 +59,14 @@
         >
           Switch
         </button>
+        <button
+          type="button"
+          class="tab"
+          [class.active]="store.activeTab() === 'system'"
+          (click)="store.activeTab.set('system')"
+        >
+          System
+        </button>
       </nav>
 
       @if (store.activeTab() === 'wifi') {
@@ -67,6 +75,8 @@
         <app-wan></app-wan>
       } @else if (store.activeTab() === 'switch') {
         <app-switch></app-switch>
+      } @else if (store.activeTab() === 'system') {
+        <app-system></app-system>
       }
 
       <div class="meta">

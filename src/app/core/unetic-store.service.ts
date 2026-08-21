@@ -1,14 +1,14 @@
 import { Injectable, computed, signal } from '@angular/core';
 
-import { ApiEnvelope, OperationAccepted, PublicState, SwitchInfo, WanProtocol } from './models';
+import { ApiEnvelope, PublicState, SwitchInfo, SystemInfo } from './models';
 import { UbusClient } from './ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class UneticStore {
   readonly state = signal<PublicState | null>(null);
   readonly switchInfo = signal<SwitchInfo | null>(null);
-  readonly activeTab = signal<'wifi' | 'wan' | 'switch'>('wifi');
-  readonly draftSsid = signal('');
+  readonly systemInfo = signal<SystemInfo | null>(null);
+  readonly activeTab = signal<'wifi' | 'wan' | 'switch' | 'system'>('wifi');
 
   readonly connected = signal(false);
   readonly loginRequired = signal(true);
@@ -18,39 +18,8 @@ export class UneticStore {
     () => this.state()?.active_operation?.source === 'user',
   );
 
-  readonly canSave = computed(() => {
-    const state = this.state();
-    return (
-      !!state &&
-      state.lifecycle === 'ready' &&
-      !state.maintenance.enabled &&
-      !state.active_operation &&
-      this.isValidSsid(this.draftSsid()) &&
-      this.draftSsid() !== state.wifi.ssid
-    );
-  });
-
-  readonly canSaveWan = computed(() => {
-    const state = this.state();
-    if (!state || state.lifecycle !== 'ready' || state.maintenance.enabled || !!state.active_operation) {
-      return false;
-    }
-    const proto = this.draftWanProto();
-    if (proto === 'static') {
-      return (
-        this.draftWanIp().trim().length > 0 &&
-        this.draftWanNetmask().trim().length > 0 &&
-        this.draftWanGateway().trim().length > 0
-      );
-    }
-    if (proto === 'pppoe') {
-      return this.draftWanUsername().trim().length > 0;
-    }
-    return true;
-  });
-
   private lastServerSsid: string | null = null;
-  private currentRequestId: string | null = null;
+  currentRequestId: string | null = null;
   private pollingTimer?: number;
   private reconnectTimer?: number;
 
@@ -77,105 +46,60 @@ export class UneticStore {
     }
   }
 
-  async saveSsid(): Promise<void> {
-    const state = this.state();
-    const ssid = this.draftSsid();
-    if (!state || !this.canSave()) {
-      return;
-    }
-
-    this.error.set(null);
-    const requestId = crypto.randomUUID();
-    this.currentRequestId = requestId;
-
-    try {
-      const envelope = await this.ubus.call<ApiEnvelope<OperationAccepted>>(
-        'wifi.set_ssid',
-        {
-          ssid,
-          expected_revision: state.revision,
-          request_id: requestId,
-        },
-      );
-      this.applyEnvelope(envelope);
-      if (!envelope.ok || envelope.result?.noop) {
-        this.currentRequestId = null;
-        this.draftSsid.set(envelope.state.wifi.ssid);
-      }
-    } catch {
-      this.connected.set(false);
-      this.error.set('Connection lost — checking the result…');
-      this.scheduleReconnect();
-    }
-  }
-
-  async saveWan(): Promise<void> {
-    const state = this.state();
-    if (!state || !this.canSaveWan()) {
-      return;
-    }
-
-    this.error.set(null);
-    const requestId = crypto.randomUUID();
-    this.currentRequestId = requestId;
-
-    const proto = this.draftWanProto();
-    const dnsList = this.draftWanDns()
-      .trim()
-      .split(/[\s,]+/)
-      .filter((d) => d.length > 0);
-
-    const wanPayload = {
-      present: proto !== 'none',
-      proto,
-      custom_mac: this.draftWanMac().trim() || null,
-      custom_mtu: this.draftWanMtu() || null,
-      custom_dns: dnsList,
-      static_config:
-        proto === 'static'
-          ? {
-              ip_address: this.draftWanIp().trim(),
-              netmask: this.draftWanNetmask().trim(),
-              gateway: this.draftWanGateway().trim(),
-              dns: dnsList,
-            }
-          : null,
-      pppoe_config:
-        proto === 'pppoe'
-          ? {
-              username: this.draftWanUsername().trim(),
-              password: this.draftWanPassword() || null,
-              service_name: this.draftWanServiceName().trim() || null,
-            }
-          : null,
-    };
-
-    try {
-      const envelope = await this.ubus.call<ApiEnvelope<OperationAccepted>>(
-        'wan.set',
-        {
-          wan: wanPayload,
-          expected_revision: state.revision,
-          request_id: requestId,
-        },
-      );
-      this.applyEnvelope(envelope);
-      if (!envelope.ok || envelope.result?.noop) {
-        this.currentRequestId = null;
-      }
-    } catch {
-      this.connected.set(false);
-      this.error.set('Connection lost — checking the result…');
-      this.scheduleReconnect();
-    }
-  }
-
   async enterMaintenance(): Promise<void> {
     await this.simpleMutation('maintenance.enter');
   }
 
   async exitMaintenance(): Promise<void> {
     await this.simpleMutation('maintenance.exit');
+  }
+
+  async fetchSwitchInfo(): Promise<SwitchInfo | null> {
+    try {
+      const envelope = await this.ubus.call<ApiEnvelope<SwitchInfo>>('switch.get', {});
+      if (envelope.ok && envelope.result) {
+        this.switchInfo.set(envelope.result);
+        return envelope.result;
+      }
+    } catch {
+      // Switch info is optional if device has no switch
+    }
+    return null;
+  }
+
+  async fetchSystemInfo(): Promise<SystemInfo | null> {
+    try {
+      const envelope = await this.ubus.call<ApiEnvelope<SystemInfo>>('system.info', {});
+      if (envelope.ok && envelope.result) {
+        this.systemInfo.set(envelope.result);
+        return envelope.result;
+      }
+    } catch {
+      // System info may be unavailable on older core versions
+    }
+    return null;
+  }
+
+  applyEnvelope<T>(envelope: ApiEnvelope<T>): void {
+    if (envelope.api_version !== 1) {
+      this.error.set(`Unsupported Unetic API version: ${envelope.api_version}`);
+      return;
+    }
+
+    this.applySnapshot(envelope.state);
+    if (!envelope.ok && envelope.error) {
+      this.error.set(envelope.error.message);
+    }
+  }
+
+  scheduleReconnect(): void {
+    if (this.reconnectTimer) {
+      return;
+    }
+    this.reconnectTimer = window.setTimeout(() => {
+      this.reconnectTimer = undefined;
+      void this.connect();
+    }, 1000);
   }
 
   private async simpleMutation(method: string): Promise<void> {
@@ -190,8 +114,6 @@ export class UneticStore {
   private async connect(): Promise<void> {
     window.clearTimeout(this.reconnectTimer);
     try {
-      // Establish the live stream first, then take a full snapshot. This closes
-      // the race where a state change could happen between snapshot and subscribe.
       await this.ubus.subscribe(
         (value) => this.acceptIncomingState(value),
         () => {
@@ -216,19 +138,6 @@ export class UneticStore {
     }
   }
 
-  async fetchSwitchInfo(): Promise<SwitchInfo | null> {
-    try {
-      const envelope = await this.ubus.call<ApiEnvelope<SwitchInfo>>('switch.get', {});
-      if (envelope.ok && envelope.result) {
-        this.switchInfo.set(envelope.result);
-        return envelope.result;
-      }
-    } catch {
-      // Switch info is optional if device has no switch
-    }
-    return null;
-  }
-
   private async refresh(): Promise<void> {
     const envelope = await this.ubus.call<ApiEnvelope<PublicState>>(
       'state',
@@ -237,6 +146,9 @@ export class UneticStore {
     this.applyEnvelope(envelope);
     if (!this.switchInfo()) {
       void this.fetchSwitchInfo();
+    }
+    if (!this.systemInfo()) {
+      void this.fetchSystemInfo();
     }
   }
 
@@ -253,16 +165,6 @@ export class UneticStore {
         this.scheduleReconnect();
       });
     }, 5000);
-  }
-
-  private scheduleReconnect(): void {
-    if (this.reconnectTimer) {
-      return;
-    }
-    this.reconnectTimer = window.setTimeout(() => {
-      this.reconnectTimer = undefined;
-      void this.connect();
-    }, 1000);
   }
 
   private acceptIncomingState(value: unknown): void {
@@ -288,18 +190,6 @@ export class UneticStore {
     this.applyState(value);
   }
 
-  private applyEnvelope<T>(envelope: ApiEnvelope<T>): void {
-    if (envelope.api_version !== 1) {
-      this.error.set(`Unsupported Unetic API version: ${envelope.api_version}`);
-      return;
-    }
-
-    this.applySnapshot(envelope.state);
-    if (!envelope.ok && envelope.error) {
-      this.error.set(envelope.error.message);
-    }
-  }
-
   private applySnapshot(state: PublicState): void {
     const current = this.state();
     if (
@@ -313,14 +203,8 @@ export class UneticStore {
   }
 
   private applyState(state: PublicState): void {
-    const previousSsid = this.lastServerSsid;
     this.state.set(state);
     this.connected.set(true);
-
-    if (previousSsid === null || previousSsid !== state.wifi.ssid) {
-      this.draftSsid.set(state.wifi.ssid);
-      this.lastServerSsid = state.wifi.ssid;
-    }
 
     const last = state.last_user_operation;
     if (this.currentRequestId && last?.request_id === this.currentRequestId) {
@@ -329,11 +213,9 @@ export class UneticStore {
           last.error?.message ?? 'The change failed and was rolled back.',
         );
         this.currentRequestId = null;
-        this.draftSsid.set(state.wifi.ssid);
       } else if (last.status === 'succeeded') {
         this.error.set(null);
         this.currentRequestId = null;
-        this.draftSsid.set(state.wifi.ssid);
       }
     }
 
@@ -356,11 +238,6 @@ export class UneticStore {
       typeof state.boot_id === 'string' &&
       !!state.wifi
     );
-  }
-
-  private isValidSsid(value: string): boolean {
-    const bytes = new TextEncoder().encode(value).byteLength;
-    return bytes > 0 && bytes <= 32 && !value.includes('\0');
   }
 
   private message(error: unknown): string {

@@ -1,0 +1,55 @@
+@if (store.systemInfo(); as sys) {
+  <div class="form">
+    <div class="info-grid">
+      <div class="info-row">
+        <span class="info-label">Hostname</span>
+        <span class="info-value">{{ sys.hostname || '—' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Model</span>
+        <span class="info-value">{{ sys.model }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Board</span>
+        <span class="info-value">{{ sys.board_name || '—' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Firmware</span>
+        <span class="info-value">{{ sys.firmware_version }} {{ sys.firmware_revision }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Target</span>
+        <span class="info-value">{{ sys.target || '—' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Architecture</span>
+        <span class="info-value">{{ sys.arch || '—' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Kernel</span>
+        <span class="info-value">{{ sys.kernel_version }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Uptime</span>
+        <span class="info-value">{{ formatUptime(sys.uptime_secs) }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Load Average</span>
+        <span class="info-value">
+          {{ sys.load_average[0].toFixed(2) }}
+          {{ sys.load_average[1].toFixed(2) }}
+          {{ sys.load_average[2].toFixed(2) }}
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Memory</span>
+        <span class="info-value">
+          {{ formatMemory(sys.memory_available_kb) }} free
+          / {{ formatMemory(sys.memory_total_kb) }}
+        </span>
+      </div>
+    </div>
+  </div>
+} @else {
+  <p class="status">Loading system information…</p>
+}

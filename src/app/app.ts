@@ -6,10 +6,11 @@ import { UneticStore } from './core/unetic-store.service';
 import { WifiComponent } from './wifi/wifi.component';
 import { WanComponent } from './wan/wan.component';
 import { SwitchComponent } from './switch/switch.component';
+import { SystemComponent } from './system/system.component';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule, WifiComponent, WanComponent, SwitchComponent],
+  imports: [FormsModule, WifiComponent, WanComponent, SwitchComponent, SystemComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -27,4 +28,3 @@ export class App implements OnInit {
     void this.store.login(this.username(), this.password());
   }
 }
-
