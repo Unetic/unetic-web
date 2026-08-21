@@ -1,0 +1,40 @@
+<div class="form devices-panel">
+  @if (store.error(); as err) {
+    <p class="error">{{ err }}</p>
+  }
+
+  @if (store.devices().length > 0) {
+    <div class="table-container">
+      <table class="devices-table">
+        <thead>
+          <tr>
+            <th>Hostname</th>
+            <th>IP</th>
+            <th>MAC</th>
+            <th>Connection</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (device of store.devices(); track device.mac) {
+            <tr>
+              <td class="col-hostname" [class.unknown]="!device.hostname">
+                {{ device.hostname || 'Unknown Device' }}
+              </td>
+              <td class="col-ip">
+                <code>{{ device.ip }}</code>
+              </td>
+              <td class="col-mac">
+                <code>{{ device.mac }}</code>
+              </td>
+              <td class="col-connection">
+                <span class="badge">{{ device.connection_type }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="status">No connected devices found.</p>
+  }
+</div>

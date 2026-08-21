@@ -5,6 +5,7 @@ import { UneticStore } from './core/unetic-store.service';
 
 import { WifiComponent } from './wifi/wifi.component';
 import { WanComponent } from './wan/wan.component';
+import { DevicesComponent } from './devices/devices.component';
 import { SwitchComponent } from './switch/switch.component';
 import { SystemComponent } from './system/system.component';
 import { DiagnosticsComponent } from './diagnostics/diagnostics.component';
@@ -15,6 +16,7 @@ import { DiagnosticsComponent } from './diagnostics/diagnostics.component';
     FormsModule,
     WifiComponent,
     WanComponent,
+    DevicesComponent,
     SwitchComponent,
     SystemComponent,
     DiagnosticsComponent,

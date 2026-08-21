@@ -9,7 +9,7 @@ export class UneticStore {
   readonly switchInfo = signal<SwitchInfo | null>(null);
   readonly systemInfo = signal<SystemInfo | null>(null);
   readonly activeTab = signal<
-    'wifi' | 'wan' | 'switch' | 'system' | 'diagnostics'
+    'wifi' | 'wan' | 'devices' | 'switch' | 'system' | 'diagnostics'
   >('wifi');
 
   readonly connected = signal(false);

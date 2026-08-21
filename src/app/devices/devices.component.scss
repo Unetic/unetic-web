@@ -1,0 +1,74 @@
+:host {
+  display: block;
+}
+
+.devices-panel {
+  gap: 12px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.devices-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+
+  th,
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+    white-space: nowrap;
+  }
+
+  th {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: color-mix(in srgb, currentColor 55%, transparent);
+    background: color-mix(in srgb, currentColor 4%, transparent);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: color-mix(in srgb, currentColor 3%, transparent);
+  }
+}
+
+.col-hostname {
+  font-weight: 600;
+
+  &.unknown {
+    font-style: italic;
+    color: color-mix(in srgb, currentColor 55%, transparent);
+  }
+}
+
+.col-ip,
+.col-mac {
+  code {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+  }
+}
+
+.col-connection {
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+  }
+}

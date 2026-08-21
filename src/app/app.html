@@ -54,6 +54,14 @@
         <button
           type="button"
           class="tab"
+          [class.active]="store.activeTab() === 'devices'"
+          (click)="store.activeTab.set('devices')"
+        >
+          Devices
+        </button>
+        <button
+          type="button"
+          class="tab"
           [class.active]="store.activeTab() === 'switch'"
           (click)="store.activeTab.set('switch')"
         >
@@ -81,6 +89,8 @@
         <app-wifi></app-wifi>
       } @else if (store.activeTab() === 'wan') {
         <app-wan></app-wan>
+      } @else if (store.activeTab() === 'devices') {
+        <app-devices></app-devices>
       } @else if (store.activeTab() === 'switch') {
         <app-switch></app-switch>
       } @else if (store.activeTab() === 'system') {
