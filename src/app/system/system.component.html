@@ -15,7 +15,9 @@
       </div>
       <div class="info-row">
         <span class="info-label">Firmware</span>
-        <span class="info-value">{{ sys.firmware_version }} {{ sys.firmware_revision }}</span>
+        <span class="info-value"
+          >{{ sys.firmware_version }} {{ sys.firmware_revision }}</span
+        >
       </div>
       <div class="info-row">
         <span class="info-label">Target</span>
@@ -44,8 +46,8 @@
       <div class="info-row">
         <span class="info-label">Memory</span>
         <span class="info-value">
-          {{ formatMemory(sys.memory_available_kb) }} free
-          / {{ formatMemory(sys.memory_total_kb) }}
+          {{ formatMemory(sys.memory_available_kb) }} free /
+          {{ formatMemory(sys.memory_total_kb) }}
         </span>
       </div>
     </div>

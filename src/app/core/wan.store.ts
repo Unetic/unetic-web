@@ -18,7 +18,12 @@ export class WanStore {
 
   readonly canSaveWan = computed(() => {
     const state = this.uneticStore.state();
-    if (!state || state.lifecycle !== 'ready' || state.maintenance.enabled || !!state.active_operation) {
+    if (
+      !state ||
+      state.lifecycle !== 'ready' ||
+      state.maintenance.enabled ||
+      !!state.active_operation
+    ) {
       return false;
     }
     const proto = this.draftWanProto();

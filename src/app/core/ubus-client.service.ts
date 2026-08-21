@@ -45,7 +45,7 @@ export class UbusClient {
 
   async call<T>(
     method: string,
-    params: Record<string, unknown> = {},
+    params: Record<string, unknown> | object = {},
   ): Promise<T> {
     if (!this.sid) {
       throw new Error('Not authenticated');
@@ -154,7 +154,7 @@ export class UbusClient {
     sid: string,
     object: string,
     method: string,
-    params: Record<string, unknown>,
+    params: unknown,
   ): Promise<T> {
     const id = this.nextId++;
     const response = await fetch('/ubus', {

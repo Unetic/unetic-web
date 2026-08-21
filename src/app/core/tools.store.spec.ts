@@ -2,6 +2,43 @@ import { TestBed } from '@angular/core/testing';
 import { ToolsStore } from './tools.store';
 import { UbusClient } from './ubus-client.service';
 import { UneticStore } from './unetic-store.service';
+import { PublicState } from './models';
+
+function createMockState(): PublicState {
+  return {
+    api_version: 1,
+    core_version: '1.0.0',
+    boot_id: 'boot-123',
+    event_seq: 1,
+    revision: 1,
+    lifecycle: 'ready',
+    maintenance: { enabled: false, exiting: false },
+    wifi: {
+      ssid: 'TestNetwork',
+      targets: ['radio0'],
+      observed: { radio0: 'TestNetwork' },
+      status: 'synced',
+    },
+    wan: {
+      present: true,
+      proto: 'dhcp',
+      status: 'connected',
+      uptime_secs: 10,
+      dns: [],
+    },
+    active_operation: null,
+    last_user_operation: null,
+    last_system_error: null,
+    drift: { detected: false, fields: [] },
+    health: {
+      core: 'ok',
+      ubus: 'ok',
+      rpcd: 'ok',
+      wireless: 'ok',
+      wan: 'ok',
+    },
+  };
+}
 
 describe('ToolsStore', () => {
   let store: ToolsStore;
@@ -51,7 +88,7 @@ describe('ToolsStore', () => {
       result: {
         output: 'PING 8.8.8.8: 56 data bytes\n64 bytes from 8.8.8.8: seq=0',
       },
-      state: {} as any,
+      state: createMockState(),
     };
     mockUbus.call.mockResolvedValueOnce(mockEnvelope);
 
@@ -77,7 +114,7 @@ describe('ToolsStore', () => {
       api_version: 1,
       ok: true,
       result: 'PING google.com (142.250.74.206): 56 data bytes',
-      state: {} as any,
+      state: createMockState(),
     };
     mockUbus.call.mockResolvedValueOnce(mockEnvelope);
 
@@ -100,7 +137,7 @@ describe('ToolsStore', () => {
         retryable: false,
         details: null,
       },
-      state: {} as any,
+      state: createMockState(),
     };
     mockUbus.call.mockResolvedValueOnce(mockEnvelope);
 

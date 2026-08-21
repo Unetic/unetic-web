@@ -74,15 +74,15 @@ describe('DevicesComponent', () => {
 
     const headers = Array.from(
       fixture.nativeElement.querySelectorAll('th'),
-    ).map((th: any) => th.textContent.trim());
+    ).map((th) => (th as HTMLTableCellElement).textContent?.trim());
     expect(headers).toEqual(['Hostname', 'IP', 'MAC', 'Connection']);
 
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
     expect(rows.length).toBe(2);
 
     // First row with hostname
-    const row1Cols = Array.from(rows[0].querySelectorAll('td')).map((td: any) =>
-      td.textContent.trim(),
+    const row1Cols = Array.from(rows[0].querySelectorAll('td')).map((td) =>
+      (td as HTMLTableCellElement).textContent?.trim(),
     );
     expect(row1Cols[0]).toBe('Alice-iPhone');
     expect(row1Cols[1]).toBe('192.168.1.50');
@@ -90,8 +90,8 @@ describe('DevicesComponent', () => {
     expect(row1Cols[3]).toBe('wifi');
 
     // Second row without hostname -> "Unknown Device"
-    const row2Cols = Array.from(rows[1].querySelectorAll('td')).map((td: any) =>
-      td.textContent.trim(),
+    const row2Cols = Array.from(rows[1].querySelectorAll('td')).map((td) =>
+      (td as HTMLTableCellElement).textContent?.trim(),
     );
     expect(row2Cols[0]).toBe('Unknown Device');
     expect(row2Cols[1]).toBe('192.168.1.51');

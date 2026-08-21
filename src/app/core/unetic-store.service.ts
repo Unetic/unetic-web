@@ -1,10 +1,10 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, OnDestroy, computed, signal } from '@angular/core';
 
 import { ApiEnvelope, PublicState, SwitchInfo, SystemInfo } from './models';
 import { UbusClient } from './ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
-export class UneticStore {
+export class UneticStore implements OnDestroy {
   readonly state = signal<PublicState | null>(null);
   readonly switchInfo = signal<SwitchInfo | null>(null);
   readonly systemInfo = signal<SystemInfo | null>(null);
@@ -20,13 +20,23 @@ export class UneticStore {
     () => this.state()?.active_operation?.source === 'user',
   );
 
-  private lastServerSsid: string | null = null;
   currentRequestId: string | null = null;
   private pollingTimer?: number;
   private reconnectTimer?: number;
 
   constructor(private readonly ubus: UbusClient) {
     this.loginRequired.set(!ubus.authenticated);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollingTimer !== undefined) {
+      window.clearInterval(this.pollingTimer);
+      this.pollingTimer = undefined;
+    }
+    if (this.reconnectTimer !== undefined) {
+      window.clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = undefined;
+    }
   }
 
   async start(): Promise<void> {

@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { ApiEnvelope, OperationAccepted } from './models';
+import { ApiEnvelope, OperationAccepted, SetWifiConfigRequest } from './models';
 import { UneticStore } from './unetic-store.service';
 import { UbusClient } from './ubus-client.service';
 
@@ -39,13 +39,7 @@ export class WifiStore {
     const requestId = crypto.randomUUID();
     this.uneticStore.currentRequestId = requestId;
 
-    const payload: {
-      ssid: string;
-      encryption: string;
-      key?: string;
-      expected_revision: number;
-      request_id: string;
-    } = {
+    const payload: SetWifiConfigRequest = {
       ssid,
       encryption,
       ...(encryption !== 'none' && key ? { key } : {}),

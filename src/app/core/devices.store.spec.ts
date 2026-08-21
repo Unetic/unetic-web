@@ -2,7 +2,43 @@ import { TestBed } from '@angular/core/testing';
 import { DevicesStore } from './devices.store';
 import { UbusClient } from './ubus-client.service';
 import { UneticStore } from './unetic-store.service';
-import { Device } from './models';
+import { Device, PublicState } from './models';
+
+function createMockState(): PublicState {
+  return {
+    api_version: 1,
+    core_version: '1.0.0',
+    boot_id: 'boot-123',
+    event_seq: 1,
+    revision: 1,
+    lifecycle: 'ready',
+    maintenance: { enabled: false, exiting: false },
+    wifi: {
+      ssid: 'TestNetwork',
+      targets: ['radio0'],
+      observed: { radio0: 'TestNetwork' },
+      status: 'synced',
+    },
+    wan: {
+      present: true,
+      proto: 'dhcp',
+      status: 'connected',
+      uptime_secs: 10,
+      dns: [],
+    },
+    active_operation: null,
+    last_user_operation: null,
+    last_system_error: null,
+    drift: { detected: false, fields: [] },
+    health: {
+      core: 'ok',
+      ubus: 'ok',
+      rpcd: 'ok',
+      wireless: 'ok',
+      wan: 'ok',
+    },
+  };
+}
 
 describe('DevicesStore', () => {
   let store: DevicesStore;
@@ -71,7 +107,7 @@ describe('DevicesStore', () => {
       api_version: 1,
       ok: true,
       result: mockDevices,
-      state: {} as any,
+      state: createMockState(),
     };
     mockUbus.call.mockResolvedValueOnce(mockEnvelope);
 
@@ -98,7 +134,7 @@ describe('DevicesStore', () => {
       api_version: 1,
       ok: true,
       result: { devices: mockDevices },
-      state: {} as any,
+      state: createMockState(),
     };
     mockUbus.call.mockResolvedValueOnce(mockEnvelope);
 
@@ -119,7 +155,7 @@ describe('DevicesStore', () => {
         retryable: true,
         details: null,
       },
-      state: {} as any,
+      state: createMockState(),
     };
     mockUbus.call.mockResolvedValueOnce(mockEnvelope);
 
@@ -145,7 +181,7 @@ describe('DevicesStore', () => {
         api_version: 1,
         ok: true,
         result: [],
-        state: {} as any,
+        state: createMockState(),
       });
 
       store.startPolling(5000);
