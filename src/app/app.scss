@@ -98,6 +98,15 @@ header p,
   font-size: 13px;
 }
 
+.banner {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .badge {
   display: inline-block;
   padding: 3px 8px;

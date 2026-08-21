@@ -110,6 +110,32 @@ describe('WanStore', () => {
       store.draftWanUsername.set('user123');
       expect(store.canSaveWan()).toBe(true);
     });
+
+    it('allows saving extender mode', () => {
+      store.draftWanProto.set('extender');
+      expect(store.canSaveWan()).toBe(true);
+    });
+  });
+
+  describe('wan computed', () => {
+    it('returns the current WAN state from uneticStore', () => {
+      expect(store.wan().proto).toBe('dhcp');
+      expect(store.wan().status).toBe('connected');
+
+      mockUneticStore.state.set(
+        createMockState({
+          wan: {
+            present: true,
+            proto: 'extender',
+            status: 'connected',
+            uptime_secs: 200,
+            dns: [],
+          },
+        }),
+      );
+
+      expect(store.wan().proto).toBe('extender');
+    });
   });
 
   describe('saveWan', () => {
@@ -138,6 +164,34 @@ describe('WanStore', () => {
         }),
       );
       expect(mockUneticStore.applyEnvelope).toHaveBeenCalledWith(mockEnvelope);
+    });
+
+    it('calls wan.set with extender payload', async () => {
+      store.draftWanProto.set('extender');
+      const mockEnvelope = {
+        api_version: 1,
+        ok: true,
+        result: {
+          operation_id: 'op-extender',
+          status: 'accepted',
+          noop: false,
+        },
+        state: createMockState(),
+      };
+      mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+
+      await store.saveWan();
+
+      expect(mockUbus.call).toHaveBeenCalledWith(
+        'wan.set',
+        expect.objectContaining({
+          wan: expect.objectContaining({
+            present: true,
+            proto: 'extender',
+          }),
+          expected_revision: 3,
+        }),
+      );
     });
   });
 });

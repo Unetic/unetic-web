@@ -19,9 +19,17 @@
         <option value="dhcp">DHCP (Automatic)</option>
         <option value="static">Static IP</option>
         <option value="pppoe">PPPoE</option>
+        <option value="extender">Mesh Extender (Slave)</option>
         <option value="none">Disabled</option>
       </select>
     </label>
+
+    @if (wan.draftWanProto() === 'extender') {
+      <div class="banner">
+        Router is running in Extender Mode. It receives all network
+        configuration from the Controller.
+      </div>
+    }
 
     @if (wan.draftWanProto() === 'static') {
       <label>
@@ -87,7 +95,7 @@
       </label>
     }
 
-    @if (wan.draftWanProto() !== 'none') {
+    @if (wan.draftWanProto() !== 'none' && wan.draftWanProto() !== 'extender') {
       <label>
         DNS Servers (optional)
         <input

@@ -1,10 +1,27 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { ApiEnvelope, OperationAccepted, WanProtocol } from './models';
+import {
+  ApiEnvelope,
+  OperationAccepted,
+  WanProtocol,
+  WanPublicState,
+} from './models';
 import { UneticStore } from './unetic-store.service';
 import { UbusClient } from './ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class WanStore {
+  readonly wan = computed<WanPublicState>(() => {
+    return (
+      this.uneticStore.state()?.wan ?? {
+        present: true,
+        proto: 'dhcp',
+        status: 'not_configured',
+        dns: [],
+        uptime_secs: 0,
+      }
+    );
+  });
+
   readonly draftWanProto = signal<WanProtocol>('dhcp');
   readonly draftWanIp = signal('');
   readonly draftWanNetmask = signal('255.255.255.0');

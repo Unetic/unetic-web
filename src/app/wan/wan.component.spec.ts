@@ -123,6 +123,34 @@ describe('WanComponent', () => {
     expect(inputs.length).toBeGreaterThanOrEqual(3);
   });
 
+  it('includes Mesh Extender (Slave) option in protocol selector', () => {
+    const select = fixture.nativeElement.querySelector(
+      'select',
+    ) as HTMLSelectElement;
+    const options = Array.from(select.options).map((opt) => ({
+      value: opt.value,
+      text: opt.text.trim(),
+    }));
+
+    expect(options).toContainEqual({
+      value: 'extender',
+      text: 'Mesh Extender (Slave)',
+    });
+  });
+
+  it('displays extender notice banner and hides other inputs when protocol is extender', () => {
+    mockWanStore.draftWanProto.set('extender');
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).toContain(
+      'Router is running in Extender Mode. It receives all network configuration from the Controller.',
+    );
+
+    const inputs = root.querySelectorAll('input');
+    expect(inputs.length).toBe(0);
+  });
+
   it('calls saveWan when save button is clicked', () => {
     const button = fixture.nativeElement.querySelector(
       'button',

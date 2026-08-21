@@ -37,7 +37,7 @@ export interface LastOperation extends PublicOperation {
   finished_at_ms: number;
 }
 
-export type WanProtocol = 'dhcp' | 'static' | 'pppoe' | 'none';
+export type WanProtocol = 'dhcp' | 'static' | 'pppoe' | 'none' | 'extender';
 
 export type WanStatus =
   'not_configured' | 'connecting' | 'connected' | 'disconnected' | 'error';

@@ -35,14 +35,16 @@
       </form>
     } @else if (store.state(); as state) {
       <nav class="tabs">
-        <button
-          type="button"
-          class="tab"
-          [class.active]="store.activeTab() === 'wifi'"
-          (click)="store.activeTab.set('wifi')"
-        >
-          Wi-Fi
-        </button>
+        @if (wanStore.wan().proto !== 'extender') {
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'wifi'"
+            (click)="store.activeTab.set('wifi')"
+          >
+            Wi-Fi
+          </button>
+        }
         <button
           type="button"
           class="tab"
@@ -51,22 +53,24 @@
         >
           WAN
         </button>
-        <button
-          type="button"
-          class="tab"
-          [class.active]="store.activeTab() === 'devices'"
-          (click)="store.activeTab.set('devices')"
-        >
-          Devices
-        </button>
-        <button
-          type="button"
-          class="tab"
-          [class.active]="store.activeTab() === 'switch'"
-          (click)="store.activeTab.set('switch')"
-        >
-          Switch
-        </button>
+        @if (wanStore.wan().proto !== 'extender') {
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'devices'"
+            (click)="store.activeTab.set('devices')"
+          >
+            Devices
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'switch'"
+            (click)="store.activeTab.set('switch')"
+          >
+            Switch
+          </button>
+        }
         <button
           type="button"
           class="tab"
@@ -75,27 +79,41 @@
         >
           System
         </button>
-        <button
-          type="button"
-          class="tab"
-          [class.active]="store.activeTab() === 'diagnostics'"
-          (click)="store.activeTab.set('diagnostics')"
-        >
-          Diagnostics
-        </button>
+        @if (wanStore.wan().proto !== 'extender') {
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'diagnostics'"
+            (click)="store.activeTab.set('diagnostics')"
+          >
+            Diagnostics
+          </button>
+        }
       </nav>
 
-      @if (store.activeTab() === 'wifi') {
+      @if (
+        store.activeTab() === 'wifi' && wanStore.wan().proto !== 'extender'
+      ) {
         <app-wifi></app-wifi>
-      } @else if (store.activeTab() === 'wan') {
+      } @else if (
+        store.activeTab() === 'wan' ||
+        (wanStore.wan().proto === 'extender' && store.activeTab() !== 'system')
+      ) {
         <app-wan></app-wan>
-      } @else if (store.activeTab() === 'devices') {
+      } @else if (
+        store.activeTab() === 'devices' && wanStore.wan().proto !== 'extender'
+      ) {
         <app-devices></app-devices>
-      } @else if (store.activeTab() === 'switch') {
+      } @else if (
+        store.activeTab() === 'switch' && wanStore.wan().proto !== 'extender'
+      ) {
         <app-switch></app-switch>
       } @else if (store.activeTab() === 'system') {
         <app-system></app-system>
-      } @else if (store.activeTab() === 'diagnostics') {
+      } @else if (
+        store.activeTab() === 'diagnostics' &&
+        wanStore.wan().proto !== 'extender'
+      ) {
         <app-diagnostics></app-diagnostics>
       }
 

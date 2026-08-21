@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { UneticStore } from './core/unetic-store.service';
+import { WanStore } from './core/wan.store';
 
 import { WifiComponent } from './wifi/wifi.component';
 import { WanComponent } from './wan/wan.component';
@@ -28,7 +29,10 @@ export class App implements OnInit {
   readonly username = signal('root');
   readonly password = signal('');
 
-  constructor(readonly store: UneticStore) {}
+  constructor(
+    readonly store: UneticStore,
+    readonly wanStore: WanStore,
+  ) {}
 
   ngOnInit(): void {
     void this.store.start();
