@@ -3,9 +3,13 @@ import { FormsModule } from '@angular/forms';
 
 import { UneticStore } from './core/unetic-store.service';
 
+import { WifiComponent } from './wifi/wifi.component';
+import { WanComponent } from './wan/wan.component';
+import { SwitchComponent } from './switch/switch.component';
+
 @Component({
   selector: 'app-root',
-  imports: [FormsModule],
+  imports: [FormsModule, WifiComponent, WanComponent, SwitchComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -22,12 +26,5 @@ export class App implements OnInit {
   login(): void {
     void this.store.login(this.username(), this.password());
   }
-
-  save(): void {
-    void this.store.saveSsid();
-  }
-
-  saveWan(): void {
-    void this.store.saveWan();
-  }
 }
+

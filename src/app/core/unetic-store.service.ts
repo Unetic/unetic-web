@@ -10,17 +10,6 @@ export class UneticStore {
   readonly activeTab = signal<'wifi' | 'wan' | 'switch'>('wifi');
   readonly draftSsid = signal('');
 
-  readonly draftWanProto = signal<WanProtocol>('dhcp');
-  readonly draftWanIp = signal('');
-  readonly draftWanNetmask = signal('255.255.255.0');
-  readonly draftWanGateway = signal('');
-  readonly draftWanDns = signal('');
-  readonly draftWanUsername = signal('');
-  readonly draftWanPassword = signal('');
-  readonly draftWanServiceName = signal('');
-  readonly draftWanMac = signal('');
-  readonly draftWanMtu = signal<number | null>(null);
-
   readonly connected = signal(false);
   readonly loginRequired = signal(true);
   readonly error = signal<string | null>(null);

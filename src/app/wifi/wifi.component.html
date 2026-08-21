@@ -1,0 +1,17 @@
+@if (store.state(); as state) {
+  <div class="form">
+    <label>
+      Wi-Fi name
+      <input
+        [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+        [ngModel]="wifi.draftSsid()"
+        (ngModelChange)="wifi.draftSsid.set($event)"
+        maxlength="32"
+      />
+    </label>
+
+    <button type="button" [disabled]="!wifi.canSave()" (click)="save()">
+      {{ store.saving() ? 'Applying…' : 'Save Wi-Fi' }}
+    </button>
+  </div>
+}
