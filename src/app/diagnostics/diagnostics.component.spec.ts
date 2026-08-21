@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DiagnosticsComponent } from './diagnostics.component';
-import { ToolsStore } from '../core/tools.store';
+import { ToolsStore } from '../diagnostics/tools.store';
 
 describe('DiagnosticsComponent', () => {
   let component: DiagnosticsComponent;

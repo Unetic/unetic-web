@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ToolsStore } from '../core/tools.store';
+import { ToolsStore } from '../diagnostics/tools.store';
 
 @Component({
   selector: 'app-diagnostics',

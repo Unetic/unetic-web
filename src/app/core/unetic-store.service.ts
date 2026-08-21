@@ -1,7 +1,9 @@
 import { Injectable, OnDestroy, computed, signal } from '@angular/core';
 
-import { ApiEnvelope, PublicState, SwitchInfo, SystemInfo } from './models';
-import { UbusClient } from './ubus-client.service';
+import { SystemInfo } from '../system/system.model';
+import { ApiEnvelope, PublicState } from '../core/models';
+import { SwitchInfo } from '../switch/switch.model';
+import { UbusClient } from '../core/ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class UneticStore implements OnDestroy {

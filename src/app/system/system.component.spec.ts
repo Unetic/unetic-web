@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SystemComponent } from './system.component';
 import { UneticStore } from '../core/unetic-store.service';
-import { SystemInfo } from '../core/models';
+import { SystemInfo } from './system.model';
 
 function createMockSystemInfo(): SystemInfo {
   return {

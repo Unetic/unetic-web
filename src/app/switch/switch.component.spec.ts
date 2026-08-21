@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SwitchComponent } from './switch.component';
 import { UneticStore } from '../core/unetic-store.service';
-import { SwitchInfo } from '../core/models';
+import { SwitchInfo } from './switch.model';
 
 function createMockSwitchInfo(): SwitchInfo {
   const defaultFeature = {

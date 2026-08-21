@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { SwitchFeatureStatus } from '../core/models';
+import { SwitchFeatureStatus } from './switch.model';
 import { UneticStore } from '../core/unetic-store.service';
 
 export interface SwitchFeatureItem {

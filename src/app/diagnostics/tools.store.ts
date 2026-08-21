@@ -1,7 +1,8 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { ApiEnvelope, PingResult } from './models';
-import { UbusClient } from './ubus-client.service';
-import { UneticStore } from './unetic-store.service';
+import { ApiEnvelope } from '../core/models';
+import { PingResult } from './diagnostics.model';
+import { UbusClient } from '../core/ubus-client.service';
+import { UneticStore } from '../core/unetic-store.service';
 
 @Injectable({ providedIn: 'root' })
 export class ToolsStore {

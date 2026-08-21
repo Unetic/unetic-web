@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { WifiStore } from './wifi.store';
-import { UbusClient } from './ubus-client.service';
-import { UneticStore } from './unetic-store.service';
-import { PublicState } from './models';
+import { UbusClient } from '../core/ubus-client.service';
+import { UneticStore } from '../core/unetic-store.service';
+import { PublicState } from '../core/models';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
   return {

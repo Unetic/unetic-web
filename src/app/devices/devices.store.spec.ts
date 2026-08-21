@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { DevicesStore } from './devices.store';
-import { UbusClient } from './ubus-client.service';
-import { UneticStore } from './unetic-store.service';
-import { Device, PublicState } from './models';
+import { UbusClient } from '../core/ubus-client.service';
+import { UneticStore } from '../core/unetic-store.service';
+import { Device } from './devices.model';
+import { PublicState } from '../core/models';
 
 function createMockState(): PublicState {
   return {

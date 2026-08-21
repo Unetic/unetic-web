@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UneticStore } from '../core/unetic-store.service';
-import { WanStore } from '../core/wan.store';
+import { WanStore } from '../wan/wan.store';
 
 @Component({
   selector: 'app-wan',

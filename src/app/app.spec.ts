@@ -3,8 +3,9 @@ import { signal } from '@angular/core';
 
 import { App } from './app';
 import { UneticStore } from './core/unetic-store.service';
-import { WanStore } from './core/wan.store';
-import { PublicState, WanPublicState } from './core/models';
+import { WanStore } from './wan/wan.store';
+import { PublicState } from './core/models';
+import { WanPublicState } from './wan/wan.model';
 
 function createMockState(): PublicState {
   return {

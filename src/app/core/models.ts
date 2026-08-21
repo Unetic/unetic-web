@@ -1,3 +1,5 @@
+import { WanPublicState, SetWanRequest } from '../wan/wan.model';
+
 export type Lifecycle =
   'booting' | 'ready' | 'maintenance' | 'degraded' | 'needs_setup';
 export type OperationStatus =
@@ -37,49 +39,6 @@ export interface LastOperation extends PublicOperation {
   finished_at_ms: number;
 }
 
-export type WanProtocol = 'dhcp' | 'static' | 'pppoe' | 'none' | 'extender';
-
-export type WanStatus =
-  'not_configured' | 'connecting' | 'connected' | 'disconnected' | 'error';
-
-export interface WanStaticConfig {
-  ip_address: string;
-  netmask: string;
-  gateway: string;
-  dns?: string[];
-}
-
-export interface WanPppoeConfig {
-  username: string;
-  password?: string | null;
-  service_name?: string | null;
-}
-
-export interface WanDesired {
-  present: boolean;
-  device?: string | null;
-  proto: WanProtocol;
-  custom_mac?: string | null;
-  custom_mtu?: number | null;
-  custom_dns?: string[];
-  static_config?: WanStaticConfig | null;
-  pppoe_config?: WanPppoeConfig | null;
-}
-
-export interface WanPublicState {
-  present: boolean;
-  proto: WanProtocol;
-  status: WanStatus;
-  device?: string | null;
-  ip_address?: string | null;
-  netmask?: string | null;
-  gateway?: string | null;
-  dns: string[];
-  mac_address?: string | null;
-  uptime_secs: number;
-  error_reason?: string | null;
-}
-
 export interface PublicState {
   api_version: number;
   core_version: string;
@@ -116,26 +75,6 @@ export interface PublicState {
   };
 }
 
-export interface WifiNetworkConfig {
-  ssid: string;
-  encryption: string;
-  key?: string;
-}
-
-export interface SetWifiConfigRequest {
-  ssid: string;
-  encryption: string;
-  key?: string;
-  expected_revision: number;
-  request_id: string;
-}
-
-export interface SetWanRequest {
-  expected_revision: number;
-  request_id: string;
-  wan: WanDesired;
-}
-
 export interface ApiEnvelope<T> {
   api_version: number;
   ok: boolean;
@@ -148,74 +87,4 @@ export interface OperationAccepted {
   operation_id: string;
   status: OperationStatus;
   noop: boolean;
-}
-
-export type SwitchArchitecture = 'dsa' | 'swconfig' | 'software';
-
-export interface SwitchSocInfo {
-  model: string;
-  vendor: string;
-  compatible?: string | null;
-  driver?: string | null;
-  architecture: SwitchArchitecture;
-  tagging_protocol?: string | null;
-  ports: string[];
-}
-
-export interface SwitchFeatureStatus {
-  supported: boolean;
-  enabled: boolean;
-  controllable: boolean;
-}
-
-export interface SwitchFeatures {
-  l2_hw_switching: SwitchFeatureStatus;
-  l3_hw_flow_offload: SwitchFeatureStatus;
-  l3_sw_flow_offload: SwitchFeatureStatus;
-  vlan_filtering_8021q: SwitchFeatureStatus;
-  port_isolation: SwitchFeatureStatus;
-  hw_igmp_snooping: SwitchFeatureStatus;
-  flow_control_8023x: SwitchFeatureStatus;
-  eee_8023az: SwitchFeatureStatus;
-  stp_rstp: SwitchFeatureStatus;
-  mirroring_span: SwitchFeatureStatus;
-  jumbo_frames: SwitchFeatureStatus;
-  link_aggregation_lag: SwitchFeatureStatus;
-  tdr_cable_diag: SwitchFeatureStatus;
-  hardware_stats: SwitchFeatureStatus;
-}
-
-export interface SwitchInfo {
-  soc: SwitchSocInfo;
-  features: SwitchFeatures;
-}
-
-export interface SystemInfo {
-  hostname: string;
-  model: string;
-  board_name: string;
-  firmware_version: string;
-  firmware_revision: string;
-  target: string;
-  arch: string;
-  kernel_version: string;
-  uptime_secs: number;
-  load_average: [number, number, number];
-  memory_total_kb: number;
-  memory_available_kb: number;
-}
-
-export interface PingRequest {
-  host: string;
-}
-
-export interface PingResult {
-  output: string;
-}
-
-export interface Device {
-  mac: string;
-  ip: string;
-  hostname?: string | null;
-  connection_type: string;
 }

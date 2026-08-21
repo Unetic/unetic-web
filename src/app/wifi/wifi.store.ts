@@ -1,7 +1,8 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { ApiEnvelope, OperationAccepted, SetWifiConfigRequest } from './models';
-import { UneticStore } from './unetic-store.service';
-import { UbusClient } from './ubus-client.service';
+import { SetWifiConfigRequest } from './wifi.model';
+import { ApiEnvelope, OperationAccepted } from '../core/models';
+import { UneticStore } from '../core/unetic-store.service';
+import { UbusClient } from '../core/ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class WifiStore {

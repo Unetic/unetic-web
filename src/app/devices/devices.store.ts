@@ -1,7 +1,8 @@
 import { Injectable, signal } from '@angular/core';
-import { ApiEnvelope, Device } from './models';
-import { UbusClient } from './ubus-client.service';
-import { UneticStore } from './unetic-store.service';
+import { Device } from './devices.model';
+import { ApiEnvelope } from '../core/models';
+import { UbusClient } from '../core/ubus-client.service';
+import { UneticStore } from '../core/unetic-store.service';
 
 @Injectable({ providedIn: 'root' })
 export class DevicesStore {

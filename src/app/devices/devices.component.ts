@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { DevicesStore } from '../core/devices.store';
+import { DevicesStore } from '../devices/devices.store';
 
 @Component({
   selector: 'app-devices',

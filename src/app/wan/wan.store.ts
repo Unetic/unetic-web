@@ -1,12 +1,8 @@
 import { Injectable, computed, signal } from '@angular/core';
-import {
-  ApiEnvelope,
-  OperationAccepted,
-  WanProtocol,
-  WanPublicState,
-} from './models';
-import { UneticStore } from './unetic-store.service';
-import { UbusClient } from './ubus-client.service';
+import { ApiEnvelope, OperationAccepted } from '../core/models';
+import { WanProtocol, WanPublicState } from './wan.model';
+import { UneticStore } from '../core/unetic-store.service';
+import { UbusClient } from '../core/ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class WanStore {

@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WifiComponent } from './wifi.component';
-import { WifiStore } from '../core/wifi.store';
+import { WifiStore } from '../wifi/wifi.store';
 import { UneticStore } from '../core/unetic-store.service';
 import { PublicState } from '../core/models';
 

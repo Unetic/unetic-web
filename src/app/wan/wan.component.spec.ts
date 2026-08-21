@@ -1,9 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WanComponent } from './wan.component';
-import { WanStore } from '../core/wan.store';
+import { WanStore } from '../wan/wan.store';
 import { UneticStore } from '../core/unetic-store.service';
-import { PublicState, WanProtocol } from '../core/models';
+import { WanProtocol } from './wan.model';
+import { PublicState } from '../core/models';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
   return {

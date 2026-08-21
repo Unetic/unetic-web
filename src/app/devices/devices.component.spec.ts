@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DevicesComponent } from './devices.component';
-import { DevicesStore } from '../core/devices.store';
-import { Device } from '../core/models';
+import { DevicesStore } from '../devices/devices.store';
+import { Device } from './devices.model';
 
 describe('DevicesComponent', () => {
   let component: DevicesComponent;

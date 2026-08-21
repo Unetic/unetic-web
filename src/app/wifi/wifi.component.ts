@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UneticStore } from '../core/unetic-store.service';
-import { WifiStore } from '../core/wifi.store';
+import { WifiStore } from '../wifi/wifi.store';
 
 @Component({
   selector: 'app-wifi',
