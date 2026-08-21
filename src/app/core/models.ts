@@ -40,7 +40,6 @@ export interface LastOperation extends PublicOperation {
 }
 
 export interface PublicState {
-  api_version: number;
   core_version: string;
   boot_id: string;
   event_seq: number;
@@ -76,11 +75,9 @@ export interface PublicState {
 }
 
 export interface ApiEnvelope<T> {
-  api_version: number;
   ok: boolean;
   result?: T;
   error?: DomainError;
-  state: PublicState;
 }
 
 export interface OperationAccepted {

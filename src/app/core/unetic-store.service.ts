@@ -100,17 +100,7 @@ export class UneticStore implements OnDestroy {
     return null;
   }
 
-  applyEnvelope<T>(envelope: ApiEnvelope<T>): void {
-    if (envelope.api_version !== 1) {
-      this.error.set(`Unsupported Unetic API version: ${envelope.api_version}`);
-      return;
-    }
 
-    this.applySnapshot(envelope.state);
-    if (!envelope.ok && envelope.error) {
-      this.error.set(envelope.error.message);
-    }
-  }
 
   scheduleReconnect(): void {
     if (this.reconnectTimer) {
@@ -124,8 +114,7 @@ export class UneticStore implements OnDestroy {
 
   private async simpleMutation(method: string): Promise<void> {
     try {
-      const envelope = await this.ubus.call<ApiEnvelope<unknown>>(method, {});
-      this.applyEnvelope(envelope);
+      await this.ubus.call<ApiEnvelope<unknown>>(method, {});
     } catch (error) {
       this.error.set(this.message(error));
     }
@@ -159,11 +148,11 @@ export class UneticStore implements OnDestroy {
   }
 
   private async refresh(): Promise<void> {
-    const envelope = await this.ubus.call<ApiEnvelope<PublicState>>(
+    const state = await this.ubus.call<PublicState>(
       'state',
       {},
     );
-    this.applyEnvelope(envelope);
+    this.applySnapshot(state);
     if (!this.switchInfo()) {
       void this.fetchSwitchInfo();
     }
@@ -254,7 +243,6 @@ export class UneticStore implements OnDestroy {
     }
     const state = value as Partial<PublicState>;
     return (
-      state.api_version === 1 &&
       typeof state.boot_id === 'string' &&
       !!state.wifi
     );

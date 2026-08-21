@@ -35,7 +35,6 @@ export class ToolsStore {
         'tools.ping',
         { host: target },
       );
-      this.uneticStore.applyEnvelope(envelope);
 
       if (envelope.ok && envelope.result !== undefined) {
         let outputText = '';

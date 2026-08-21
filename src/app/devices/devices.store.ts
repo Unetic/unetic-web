@@ -27,7 +27,6 @@ export class DevicesStore implements OnDestroy {
       const envelope = await this.ubus.call<
         ApiEnvelope<Device[] | { devices: Device[] }>
       >('devices.list', {});
-      this.uneticStore.applyEnvelope(envelope);
 
       if (envelope.ok && envelope.result !== undefined) {
         let list: Device[] = [];

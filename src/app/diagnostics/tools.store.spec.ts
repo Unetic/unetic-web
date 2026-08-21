@@ -6,7 +6,7 @@ import { PublicState } from '../core/models';
 
 function createMockState(): PublicState {
   return {
-    api_version: 1,
+    
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -83,7 +83,7 @@ describe('ToolsStore', () => {
   it('ping executes tools.ping ubus call with object result', async () => {
     store.targetHost.set('8.8.8.8');
     const mockEnvelope = {
-      api_version: 1,
+      
       ok: true,
       result: {
         output: 'PING 8.8.8.8: 56 data bytes\n64 bytes from 8.8.8.8: seq=0',
@@ -97,7 +97,7 @@ describe('ToolsStore', () => {
     expect(mockUbus.call).toHaveBeenCalledWith('tools.ping', {
       host: '8.8.8.8',
     });
-    expect(mockUneticStore.applyEnvelope).toHaveBeenCalledWith(mockEnvelope);
+
     expect(store.pingOutput()).toBe(
       'PING 8.8.8.8: 56 data bytes\n64 bytes from 8.8.8.8: seq=0',
     );
@@ -111,7 +111,7 @@ describe('ToolsStore', () => {
   it('ping handles string result', async () => {
     store.targetHost.set('google.com');
     const mockEnvelope = {
-      api_version: 1,
+      
       ok: true,
       result: 'PING google.com (142.250.74.206): 56 data bytes',
       state: createMockState(),
@@ -128,7 +128,7 @@ describe('ToolsStore', () => {
   it('ping handles domain error in envelope', async () => {
     store.targetHost.set('invalid');
     const mockEnvelope = {
-      api_version: 1,
+      
       ok: false,
       error: {
         code: 'InvalidArgument',

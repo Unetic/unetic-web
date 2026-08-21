@@ -9,7 +9,6 @@ import { WanPublicState } from './wan/wan.model';
 
 function createMockState(): PublicState {
   return {
-    api_version: 1,
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,

@@ -7,7 +7,7 @@ import { PublicState } from '../core/models';
 
 function createMockState(): PublicState {
   return {
-    api_version: 1,
+    
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -105,7 +105,7 @@ describe('DevicesStore', () => {
       },
     ];
     const mockEnvelope = {
-      api_version: 1,
+      
       ok: true,
       result: mockDevices,
       state: createMockState(),
@@ -115,7 +115,7 @@ describe('DevicesStore', () => {
     const result = await store.fetchDevices();
 
     expect(mockUbus.call).toHaveBeenCalledWith('devices.list', {});
-    expect(mockUneticStore.applyEnvelope).toHaveBeenCalledWith(mockEnvelope);
+
     expect(store.devices()).toEqual(mockDevices);
     expect(result).toEqual(mockDevices);
     expect(store.error()).toBeNull();
@@ -132,7 +132,7 @@ describe('DevicesStore', () => {
       },
     ];
     const mockEnvelope = {
-      api_version: 1,
+      
       ok: true,
       result: { devices: mockDevices },
       state: createMockState(),
@@ -147,7 +147,7 @@ describe('DevicesStore', () => {
 
   it('handles domain error in envelope', async () => {
     const mockEnvelope = {
-      api_version: 1,
+      
       ok: false,
       error: {
         code: 'InternalError',
@@ -179,7 +179,7 @@ describe('DevicesStore', () => {
     vi.useFakeTimers();
     try {
       mockUbus.call.mockResolvedValue({
-        api_version: 1,
+        
         ok: true,
         result: [],
         state: createMockState(),

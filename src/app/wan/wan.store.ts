@@ -108,7 +108,6 @@ export class WanStore {
           request_id: requestId,
         },
       );
-      this.uneticStore.applyEnvelope(envelope);
       if (!envelope.ok || envelope.result?.noop) {
         this.uneticStore.currentRequestId = null;
       }

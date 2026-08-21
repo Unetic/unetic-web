@@ -7,7 +7,7 @@ import { PublicState } from '../core/models';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
   return {
-    api_version: 1,
+    
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -48,9 +48,8 @@ describe('WanStore', () => {
   let mockUneticStore: {
     state: ReturnType<typeof signal<PublicState | null>>;
     error: { set: ReturnType<typeof vi.fn> };
-    connected: { set: ReturnType<typeof vi.fn> };
+    connected: ReturnType<typeof signal>;
     currentRequestId: string | null;
-    applyEnvelope: ReturnType<typeof vi.fn>;
     scheduleReconnect: ReturnType<typeof vi.fn>;
   };
 
@@ -59,9 +58,8 @@ describe('WanStore', () => {
     mockUneticStore = {
       state: signal<PublicState | null>(createMockState()),
       error: { set: vi.fn() },
-      connected: { set: vi.fn() },
+      connected: signal(true),
       currentRequestId: null,
-      applyEnvelope: vi.fn(),
       scheduleReconnect: vi.fn(),
     };
 
@@ -143,7 +141,7 @@ describe('WanStore', () => {
       store.draftWanProto.set('dhcp');
       store.draftWanDns.set('1.1.1.1, 8.8.8.8');
       const mockEnvelope = {
-        api_version: 1,
+        
         ok: true,
         result: { operation_id: 'op-wan', status: 'accepted', noop: false },
         state: createMockState(),
@@ -161,15 +159,15 @@ describe('WanStore', () => {
             custom_dns: ['1.1.1.1', '8.8.8.8'],
           }),
           expected_revision: 3,
+          request_id: expect.any(String),
         }),
       );
-      expect(mockUneticStore.applyEnvelope).toHaveBeenCalledWith(mockEnvelope);
     });
 
     it('calls wan.set with extender payload', async () => {
       store.draftWanProto.set('extender');
       const mockEnvelope = {
-        api_version: 1,
+        
         ok: true,
         result: {
           operation_id: 'op-extender',

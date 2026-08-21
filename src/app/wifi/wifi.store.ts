@@ -53,12 +53,14 @@ export class WifiStore {
         'wifi.set_config',
         payload,
       );
-      this.uneticStore.applyEnvelope(envelope);
       if (!envelope.ok || envelope.result?.noop) {
         this.uneticStore.currentRequestId = null;
-        this.draftSsid.set(envelope.state.wifi.ssid);
-        if (envelope.state.wifi.encryption) {
-          this.draftEncryption.set(envelope.state.wifi.encryption);
+        const currentState = this.uneticStore.state();
+        if (currentState) {
+          this.draftSsid.set(currentState.wifi.ssid);
+          if (currentState.wifi.encryption) {
+            this.draftEncryption.set(currentState.wifi.encryption);
+          }
         }
       }
     } catch {

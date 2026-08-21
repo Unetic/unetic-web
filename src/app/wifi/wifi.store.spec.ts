@@ -7,7 +7,7 @@ import { PublicState } from '../core/models';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
   return {
-    api_version: 1,
+    
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -176,7 +176,7 @@ describe('WifiStore', () => {
       store.draftKey.set('secretpass123');
 
       const mockEnvelope = {
-        api_version: 1,
+        
         ok: true,
         result: { operation_id: 'op-1', status: 'accepted', noop: false },
         state: createMockState(),
@@ -194,7 +194,7 @@ describe('WifiStore', () => {
           expected_revision: 5,
         }),
       );
-      expect(mockUneticStore.applyEnvelope).toHaveBeenCalledWith(mockEnvelope);
+
     });
 
     it('calls wifi.set_config without key when encryption is none', async () => {
@@ -203,7 +203,7 @@ describe('WifiStore', () => {
       store.draftKey.set('');
 
       const mockEnvelope = {
-        api_version: 1,
+        
         ok: true,
         result: { operation_id: 'op-2', status: 'accepted', noop: false },
         state: createMockState(),
@@ -236,12 +236,13 @@ describe('WifiStore', () => {
       });
 
       const mockEnvelope = {
-        api_version: 1,
+        
         ok: true,
         result: { operation_id: 'op-3', status: 'succeeded', noop: true },
         state: returnedState,
       };
       mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+      mockUneticStore.state.set(returnedState as any);
 
       await store.saveConfig();
 

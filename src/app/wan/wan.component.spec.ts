@@ -8,7 +8,7 @@ import { PublicState } from '../core/models';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
   return {
-    api_version: 1,
+    
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
