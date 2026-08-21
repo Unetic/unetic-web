@@ -55,7 +55,7 @@ describe('App', () => {
   };
   let mockWanStore: {
     wan: ReturnType<typeof signal<WanPublicState>>;
-    draftWanProto: ReturnType<typeof signal<any>>;
+    draftWanProto: ReturnType<typeof signal<string>>;
     draftWanIp: ReturnType<typeof signal<string>>;
     draftWanNetmask: ReturnType<typeof signal<string>>;
     draftWanGateway: ReturnType<typeof signal<string>>;
@@ -124,8 +124,8 @@ describe('App', () => {
   it('displays all tabs in standard router mode', async () => {
     const fixture = await createComponent();
     const tabButtons = fixture.nativeElement.querySelectorAll('.tabs .tab');
-    const tabNames = Array.from(tabButtons).map((btn: any) =>
-      btn.textContent.trim(),
+    const tabNames = Array.from(tabButtons as Iterable<Element>).map(
+      (btn) => btn.textContent?.trim() || '',
     );
 
     expect(tabNames).toEqual([
@@ -150,8 +150,8 @@ describe('App', () => {
 
     const fixture = await createComponent();
     const tabButtons = fixture.nativeElement.querySelectorAll('.tabs .tab');
-    const tabNames = Array.from(tabButtons).map((btn: any) =>
-      btn.textContent.trim(),
+    const tabNames = Array.from(tabButtons as Iterable<Element>).map(
+      (btn) => btn.textContent?.trim() || '',
     );
 
     expect(tabNames).toEqual(['WAN', 'System']);

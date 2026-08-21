@@ -1,11 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, OnDestroy, signal } from '@angular/core';
 import { Device } from './devices.model';
 import { ApiEnvelope } from '../core/models';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
 
 @Injectable({ providedIn: 'root' })
-export class DevicesStore {
+export class DevicesStore implements OnDestroy {
   readonly devices = signal<Device[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -69,5 +69,9 @@ export class DevicesStore {
       window.clearInterval(this.pollingTimer);
       this.pollingTimer = undefined;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
   }
 }
