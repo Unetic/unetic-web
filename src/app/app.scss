@@ -55,7 +55,7 @@ header p,
 
 .tabs {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   margin-bottom: 20px;
   background: color-mix(in srgb, currentColor 6%, transparent);
   padding: 4px;
@@ -64,7 +64,7 @@ header p,
 
 .tab {
   flex: 1;
-  padding: 8px 12px;
+  padding: 8px 6px;
   border: 0;
   border-radius: 10px;
   background: transparent;
@@ -74,6 +74,7 @@ header p,
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  text-align: center;
 }
 
 .tab.active {
@@ -107,18 +108,18 @@ header p,
   background: color-mix(in srgb, currentColor 15%, transparent);
 }
 
-.badge[data-status="connected"] {
+.badge[data-status='connected'] {
   background: #2e7d32;
   color: #fff;
 }
 
-.badge[data-status="connecting"] {
+.badge[data-status='connecting'] {
   background: #ed6c02;
   color: #fff;
 }
 
-.badge[data-status="disconnected"],
-.badge[data-status="error"] {
+.badge[data-status='disconnected'],
+.badge[data-status='error'] {
   background: #d32f2f;
   color: #fff;
 }

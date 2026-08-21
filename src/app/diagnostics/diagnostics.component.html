@@ -1,0 +1,31 @@
+<form (ngSubmit)="ping()" class="form">
+  <label>
+    Ping Host / IP
+    <input
+      type="text"
+      placeholder="e.g. 1.1.1.1 or example.com"
+      [ngModel]="tools.targetHost()"
+      (ngModelChange)="tools.targetHost.set($event)"
+      name="targetHost"
+      [disabled]="tools.pinging()"
+      autocomplete="off"
+      autocapitalize="none"
+      spellcheck="false"
+    />
+  </label>
+
+  <button type="submit" [disabled]="!tools.canPing()">
+    {{ tools.pinging() ? 'Pinging…' : 'Ping' }}
+  </button>
+
+  @if (tools.error(); as err) {
+    <p class="error">{{ err }}</p>
+  }
+
+  @if (tools.pingOutput(); as output) {
+    <div class="diag-result">
+      <span class="diag-label">Output</span>
+      <pre class="diag-output"><code>{{ output }}</code></pre>
+    </div>
+  }
+</form>

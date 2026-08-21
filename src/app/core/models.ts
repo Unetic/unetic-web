@@ -40,11 +40,7 @@ export interface LastOperation extends PublicOperation {
 export type WanProtocol = 'dhcp' | 'static' | 'pppoe' | 'none';
 
 export type WanStatus =
-  | 'not_configured'
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'error';
+  'not_configured' | 'connecting' | 'connected' | 'disconnected' | 'error';
 
 export interface WanStaticConfig {
   ip_address: string;
@@ -194,3 +190,10 @@ export interface SystemInfo {
   memory_available_kb: number;
 }
 
+export interface PingRequest {
+  host: string;
+}
+
+export interface PingResult {
+  output: string;
+}

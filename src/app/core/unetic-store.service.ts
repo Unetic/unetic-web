@@ -8,7 +8,9 @@ export class UneticStore {
   readonly state = signal<PublicState | null>(null);
   readonly switchInfo = signal<SwitchInfo | null>(null);
   readonly systemInfo = signal<SystemInfo | null>(null);
-  readonly activeTab = signal<'wifi' | 'wan' | 'switch' | 'system'>('wifi');
+  readonly activeTab = signal<
+    'wifi' | 'wan' | 'switch' | 'system' | 'diagnostics'
+  >('wifi');
 
   readonly connected = signal(false);
   readonly loginRequired = signal(true);
@@ -56,7 +58,10 @@ export class UneticStore {
 
   async fetchSwitchInfo(): Promise<SwitchInfo | null> {
     try {
-      const envelope = await this.ubus.call<ApiEnvelope<SwitchInfo>>('switch.get', {});
+      const envelope = await this.ubus.call<ApiEnvelope<SwitchInfo>>(
+        'switch.get',
+        {},
+      );
       if (envelope.ok && envelope.result) {
         this.switchInfo.set(envelope.result);
         return envelope.result;
@@ -69,7 +74,10 @@ export class UneticStore {
 
   async fetchSystemInfo(): Promise<SystemInfo | null> {
     try {
-      const envelope = await this.ubus.call<ApiEnvelope<SystemInfo>>('system.info', {});
+      const envelope = await this.ubus.call<ApiEnvelope<SystemInfo>>(
+        'system.info',
+        {},
+      );
       if (envelope.ok && envelope.result) {
         this.systemInfo.set(envelope.result);
         return envelope.result;

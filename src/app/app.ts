@@ -7,10 +7,18 @@ import { WifiComponent } from './wifi/wifi.component';
 import { WanComponent } from './wan/wan.component';
 import { SwitchComponent } from './switch/switch.component';
 import { SystemComponent } from './system/system.component';
+import { DiagnosticsComponent } from './diagnostics/diagnostics.component';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule, WifiComponent, WanComponent, SwitchComponent, SystemComponent],
+  imports: [
+    FormsModule,
+    WifiComponent,
+    WanComponent,
+    SwitchComponent,
+    SystemComponent,
+    DiagnosticsComponent,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

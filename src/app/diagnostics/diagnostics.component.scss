@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+.diag-result {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.diag-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: color-mix(in srgb, currentColor 75%, transparent);
+}
+
+.diag-output {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 240px;
+  overflow-y: auto;
+}

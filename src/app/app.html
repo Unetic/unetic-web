@@ -67,6 +67,14 @@
         >
           System
         </button>
+        <button
+          type="button"
+          class="tab"
+          [class.active]="store.activeTab() === 'diagnostics'"
+          (click)="store.activeTab.set('diagnostics')"
+        >
+          Diagnostics
+        </button>
       </nav>
 
       @if (store.activeTab() === 'wifi') {
@@ -77,6 +85,8 @@
         <app-switch></app-switch>
       } @else if (store.activeTab() === 'system') {
         <app-system></app-system>
+      } @else if (store.activeTab() === 'diagnostics') {
+        <app-diagnostics></app-diagnostics>
       }
 
       <div class="meta">
@@ -89,9 +99,7 @@
       </div>
 
       @if (state.active_operation; as operation) {
-        <p class="status">
-          {{ operation.kind }}: {{ operation.status }}
-        </p>
+        <p class="status">{{ operation.kind }}: {{ operation.status }}</p>
       }
 
       @if (store.error(); as error) {
