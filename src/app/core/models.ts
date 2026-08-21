@@ -94,6 +94,7 @@ export interface PublicState {
   };
   wifi: {
     ssid: string;
+    encryption?: string;
     targets: string[];
     observed: Record<string, string>;
     status: 'synced' | 'drifted' | 'applying' | 'unknown';
@@ -113,6 +114,20 @@ export interface PublicState {
     wireless: string;
     wan: string;
   };
+}
+
+export interface WifiNetworkConfig {
+  ssid: string;
+  encryption: string;
+  key?: string;
+}
+
+export interface SetWifiConfigRequest {
+  ssid: string;
+  encryption: string;
+  key?: string;
+  expected_revision: number;
+  request_id: string;
 }
 
 export interface SetWanRequest {

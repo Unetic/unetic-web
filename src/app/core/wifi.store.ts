@@ -6,7 +6,9 @@ import { UbusClient } from './ubus-client.service';
 @Injectable({ providedIn: 'root' })
 export class WifiStore {
   readonly draftSsid = signal('');
-  
+  readonly draftEncryption = signal('psk2');
+  readonly draftKey = signal('');
+
   readonly canSave = computed(() => {
     const state = this.uneticStore.state();
     return (
@@ -15,7 +17,7 @@ export class WifiStore {
       !state.maintenance.enabled &&
       !state.active_operation &&
       this.isValidSsid(this.draftSsid()) &&
-      this.draftSsid() !== state.wifi.ssid
+      this.isValidKey(this.draftEncryption(), this.draftKey())
     );
   });
 
@@ -24,9 +26,11 @@ export class WifiStore {
     private readonly ubus: UbusClient,
   ) {}
 
-  async saveSsid(): Promise<void> {
+  async saveConfig(): Promise<void> {
     const state = this.uneticStore.state();
     const ssid = this.draftSsid();
+    const encryption = this.draftEncryption();
+    const key = this.draftKey();
     if (!state || !this.canSave()) {
       return;
     }
@@ -35,19 +39,32 @@ export class WifiStore {
     const requestId = crypto.randomUUID();
     this.uneticStore.currentRequestId = requestId;
 
+    const payload: {
+      ssid: string;
+      encryption: string;
+      key?: string;
+      expected_revision: number;
+      request_id: string;
+    } = {
+      ssid,
+      encryption,
+      ...(encryption !== 'none' && key ? { key } : {}),
+      expected_revision: state.revision,
+      request_id: requestId,
+    };
+
     try {
       const envelope = await this.ubus.call<ApiEnvelope<OperationAccepted>>(
-        'wifi.set_ssid',
-        {
-          ssid,
-          expected_revision: state.revision,
-          request_id: requestId,
-        },
+        'wifi.set_config',
+        payload,
       );
       this.uneticStore.applyEnvelope(envelope);
       if (!envelope.ok || envelope.result?.noop) {
         this.uneticStore.currentRequestId = null;
         this.draftSsid.set(envelope.state.wifi.ssid);
+        if (envelope.state.wifi.encryption) {
+          this.draftEncryption.set(envelope.state.wifi.encryption);
+        }
       }
     } catch {
       this.uneticStore.connected.set(false);
@@ -59,5 +76,12 @@ export class WifiStore {
   private isValidSsid(value: string): boolean {
     const bytes = new TextEncoder().encode(value).byteLength;
     return bytes > 0 && bytes <= 32 && !value.includes('\0');
+  }
+
+  private isValidKey(encryption: string, key: string): boolean {
+    if (encryption === 'none') {
+      return true;
+    }
+    return key.length >= 8 && key.length <= 63;
   }
 }

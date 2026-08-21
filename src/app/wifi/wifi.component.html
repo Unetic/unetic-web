@@ -10,6 +10,45 @@
       />
     </label>
 
+    <label>
+      Encryption
+      <select
+        [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+        [ngModel]="wifi.draftEncryption()"
+        (ngModelChange)="wifi.draftEncryption.set($event)"
+      >
+        <option value="none">None (Open)</option>
+        <option value="psk2">WPA2-PSK</option>
+        <option value="sae">WPA3-SAE</option>
+        <option value="sae-mixed">WPA2/WPA3-Mixed</option>
+      </select>
+    </label>
+
+    @if (wifi.draftEncryption() !== 'none') {
+      <label>
+        Password
+        <input
+          [type]="showPassword() ? 'text' : 'password'"
+          [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+          [ngModel]="wifi.draftKey()"
+          (ngModelChange)="wifi.draftKey.set($event)"
+          placeholder="8–63 characters"
+          minlength="8"
+          maxlength="63"
+        />
+      </label>
+
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+          [ngModel]="showPassword()"
+          (ngModelChange)="showPassword.set($event)"
+        />
+        <span>Show password</span>
+      </label>
+    }
+
     <button type="button" [disabled]="!wifi.canSave()" (click)="save()">
       {{ store.saving() ? 'Applying…' : 'Save Wi-Fi' }}
     </button>
