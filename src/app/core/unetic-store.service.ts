@@ -1,12 +1,13 @@
 import { Injectable, computed, signal } from '@angular/core';
 
-import { ApiEnvelope, OperationAccepted, PublicState, WanProtocol } from './models';
+import { ApiEnvelope, OperationAccepted, PublicState, SwitchInfo, WanProtocol } from './models';
 import { UbusClient } from './ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class UneticStore {
   readonly state = signal<PublicState | null>(null);
-  readonly activeTab = signal<'wifi' | 'wan'>('wifi');
+  readonly switchInfo = signal<SwitchInfo | null>(null);
+  readonly activeTab = signal<'wifi' | 'wan' | 'switch'>('wifi');
   readonly draftSsid = signal('');
 
   readonly draftWanProto = signal<WanProtocol>('dhcp');
@@ -226,12 +227,28 @@ export class UneticStore {
     }
   }
 
+  async fetchSwitchInfo(): Promise<SwitchInfo | null> {
+    try {
+      const envelope = await this.ubus.call<ApiEnvelope<SwitchInfo>>('switch.get', {});
+      if (envelope.ok && envelope.result) {
+        this.switchInfo.set(envelope.result);
+        return envelope.result;
+      }
+    } catch {
+      // Switch info is optional if device has no switch
+    }
+    return null;
+  }
+
   private async refresh(): Promise<void> {
     const envelope = await this.ubus.call<ApiEnvelope<PublicState>>(
       'state',
       {},
     );
     this.applyEnvelope(envelope);
+    if (!this.switchInfo()) {
+      void this.fetchSwitchInfo();
+    }
   }
 
   private beginPolling(): void {

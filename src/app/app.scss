@@ -195,3 +195,91 @@ select:disabled {
     color: #ff8e9b;
   }
 }
+
+.switch-panel {
+  gap: 16px;
+}
+
+.soc-card {
+  padding: 16px;
+  border-radius: 16px;
+  background: color-mix(in srgb, currentColor 4%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+  display: grid;
+  gap: 8px;
+}
+
+.soc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.soc-vendor {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: color-mix(in srgb, currentColor 55%, transparent);
+}
+
+.soc-model {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.soc-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+
+  code {
+    font-family: monospace;
+    font-size: 12px;
+  }
+}
+
+.ports-list {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.port-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.port-chip {
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.features-list {
+  display: grid;
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.feature-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, currentColor 3%, transparent);
+}
+
+.feat-name {
+  font-size: 13px;
+  font-weight: 500;
+}
