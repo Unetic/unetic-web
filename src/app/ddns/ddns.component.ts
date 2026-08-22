@@ -16,7 +16,7 @@ export class DdnsComponent {
     enabled: false,
     provider: 'none',
     cloudflare: { zone_id: '', record_id: '', api_token: '', hostname: '' },
-    duckdns: { token: '', domain: '' }
+    duckdns: { token: '', domain: '' },
   });
 
   testResult = signal<{ success: boolean; message?: string } | null>(null);
@@ -25,23 +25,26 @@ export class DdnsComponent {
     public store: DdnsStore,
     public uneticStore: UneticStore,
   ) {
-    effect(() => {
-      const current = this.store.ddnsConfig();
-      this.config.set({
-        enabled: current.enabled ?? false,
-        provider: current.provider ?? 'none',
-        cloudflare: {
-          zone_id: current.cloudflare?.zone_id ?? '',
-          record_id: current.cloudflare?.record_id ?? '',
-          api_token: current.cloudflare?.api_token ?? '',
-          hostname: current.cloudflare?.hostname ?? ''
-        },
-        duckdns: {
-          token: current.duckdns?.token ?? '',
-          domain: current.duckdns?.domain ?? ''
-        }
-      });
-    }, { allowSignalWrites: true });
+    effect(
+      () => {
+        const current = this.store.ddnsConfig();
+        this.config.set({
+          enabled: current.enabled ?? false,
+          provider: current.provider ?? 'none',
+          cloudflare: {
+            zone_id: current.cloudflare?.zone_id ?? '',
+            record_id: current.cloudflare?.record_id ?? '',
+            api_token: current.cloudflare?.api_token ?? '',
+            hostname: current.cloudflare?.hostname ?? '',
+          },
+          duckdns: {
+            token: current.duckdns?.token ?? '',
+            domain: current.duckdns?.domain ?? '',
+          },
+        });
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   timeAgo(ts: number | null): string {
@@ -66,8 +69,9 @@ export class DdnsComponent {
       this.testResult.set(null);
       await this.store.test();
       this.testResult.set({ success: true, message: 'Test successful' });
-    } catch (e: any) {
-      this.testResult.set({ success: false, message: e.message || 'Test failed' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Test failed';
+      this.testResult.set({ success: false, message });
     }
   }
 }

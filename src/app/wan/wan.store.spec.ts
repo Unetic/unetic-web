@@ -3,11 +3,23 @@ import { signal } from '@angular/core';
 import { WanStore } from './wan.store';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
-import { PublicState } from '../core/models';
+import { PublicState } from '../core/public-state.model';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
-  return { pending_extenders: [], extender_pairing_status: 'unpaired', extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
-    
+  return {
+    pending_extenders: [],
+    extender_pairing_status: 'unpaired',
+    extenders: [],
+    extender_ports: {},
+    dns: {
+      upstream: [],
+      local_domain: null,
+      dhcp_start: 100,
+      dhcp_limit: 150,
+      dhcp_lease_hours: 24,
+      custom_records: [],
+    },
+
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -140,13 +152,11 @@ describe('WanStore', () => {
     it('calls wan.set with structured payload', async () => {
       store.draftWanProto.set('dhcp');
       store.draftWanDns.set('1.1.1.1, 8.8.8.8');
-      const mockEnvelope = {
-        
-        ok: true,
-        result: { operation_id: 'op-wan', status: 'accepted', noop: false },
-        state: createMockState(),
-      };
-      mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+      mockUbus.call.mockResolvedValueOnce({
+        operation_id: 'op-wan',
+        status: 'accepted',
+        noop: false,
+      });
 
       await store.saveWan();
 
@@ -166,17 +176,11 @@ describe('WanStore', () => {
 
     it('calls wan.set with extender payload', async () => {
       store.draftWanProto.set('extender');
-      const mockEnvelope = {
-        
-        ok: true,
-        result: {
-          operation_id: 'op-extender',
-          status: 'accepted',
-          noop: false,
-        },
-        state: createMockState(),
-      };
-      mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+      mockUbus.call.mockResolvedValueOnce({
+        operation_id: 'op-extender',
+        status: 'accepted',
+        noop: false,
+      });
 
       await store.saveWan();
 

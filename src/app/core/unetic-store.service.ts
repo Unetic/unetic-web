@@ -1,16 +1,30 @@
 import { Injectable, OnDestroy, computed, signal } from '@angular/core';
 
 import { SystemInfo } from '../system/system.model';
-import { ApiEnvelope, PublicState } from '../core/models';
-import { UbusClient } from '../core/ubus-client.service';
-import { APP_CONSTANTS } from '../core/constants';
+import { TrafficHistory } from '../traffic/traffic-history';
+import { APP_CONSTANTS } from './constants';
+import { PublicState } from './public-state.model';
+import {
+  resolveEvent,
+  resolvePatch,
+  resolveSnapshot,
+  StateUpdate,
+} from './state-update';
+import { UbusClient } from './ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class UneticStore implements OnDestroy {
   readonly state = signal<PublicState | null>(null);
   readonly systemInfo = signal<SystemInfo | null>(null);
   readonly activeTab = signal<
-    'wifi' | 'wan' | 'devices' | 'ports' | 'system' | 'diagnostics' | 'dns' | 'ddns'
+    | 'wifi'
+    | 'wan'
+    | 'devices'
+    | 'ports'
+    | 'system'
+    | 'diagnostics'
+    | 'dns'
+    | 'ddns'
   >('wifi');
 
   readonly connected = signal(false);
@@ -21,20 +35,21 @@ export class UneticStore implements OnDestroy {
     () => this.state()?.active_operation?.source === 'user',
   );
 
-  readonly traffic = computed(() => this.state()?.traffic ?? { ifaces: {}, devices: {} });
+  readonly traffic = computed(
+    () => this.state()?.traffic ?? { ifaces: {}, devices: {} },
+  );
 
   readonly ddnsConfig = computed(() => this.state()?.ddns_config);
   readonly ddnsStatus = computed(() => this.state()?.ddns_status);
 
-  private deviceHistory = new Map<string, number[]>();
-  private ifaceHistory = new Map<string, number[]>();
+  private readonly trafficHistory = new TrafficHistory();
 
   getDeviceSparkline(mac: string): number[] {
-    return this.deviceHistory.get(mac) ?? [];
+    return this.trafficHistory.getDevice(mac);
   }
 
   getIfaceSparkline(ifname: string): number[] {
-    return this.ifaceHistory.get(ifname) ?? [];
+    return this.trafficHistory.getInterface(ifname);
   }
 
   currentRequestId: string | null = null;
@@ -42,10 +57,11 @@ export class UneticStore implements OnDestroy {
   private reconnectTimer?: number;
   private subscriptionId: string | null = null;
   private continueTimer?: number;
+  private readonly beforeUnloadHandler = () => this.cancelSubscription();
 
   constructor(private readonly ubus: UbusClient) {
     this.loginRequired.set(!ubus.authenticated);
-    window.addEventListener('beforeunload', () => this.cancelSubscription());
+    window.addEventListener('beforeunload', this.beforeUnloadHandler);
   }
 
   ngOnDestroy(): void {
@@ -61,35 +77,20 @@ export class UneticStore implements OnDestroy {
       window.clearInterval(this.continueTimer);
       this.continueTimer = undefined;
     }
+    window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+    this.ubus.stopSubscription();
     this.cancelSubscription();
   }
 
   private cancelSubscription(): void {
     if (this.subscriptionId) {
-      void this.ubus.call('state.subscribe.cancel', { subscription_id: this.subscriptionId }).catch(() => {});
+      void this.ubus
+        .call('state.subscribe.cancel', {
+          subscription_id: this.subscriptionId,
+        })
+        .catch(() => {});
       this.subscriptionId = null;
     }
-  }
-
-  private mergePatch(current: any, patch: any): any {
-    if (patch === null) {
-      return null;
-    }
-    if (typeof patch !== 'object' || Array.isArray(patch)) {
-      return patch;
-    }
-    if (typeof current !== 'object' || current === null || Array.isArray(current)) {
-      current = {};
-    }
-    const result = { ...current };
-    for (const key of Object.keys(patch)) {
-      if (patch[key] === null) {
-        delete result[key];
-      } else {
-        result[key] = this.mergePatch(result[key], patch[key]);
-      }
-    }
-    return result;
   }
 
   async start(): Promise<void> {
@@ -121,24 +122,17 @@ export class UneticStore implements OnDestroy {
 
   async fetchSystemInfo(): Promise<SystemInfo | null> {
     try {
-      const envelope = await this.ubus.call<ApiEnvelope<SystemInfo>>(
-        'system.info',
-        {},
-      );
-      if (envelope.result) {
-        this.systemInfo.set(envelope.result);
-        return envelope.result;
-      }
+      const systemInfo = await this.ubus.call<SystemInfo>('system.info', {});
+      this.systemInfo.set(systemInfo);
+      return systemInfo;
     } catch {
       // System info may be unavailable on older core versions
     }
     return null;
   }
 
-
-
   scheduleReconnect(): void {
-    if (this.reconnectTimer) {
+    if (this.reconnectTimer !== undefined) {
       return;
     }
     this.reconnectTimer = window.setTimeout(() => {
@@ -149,7 +143,7 @@ export class UneticStore implements OnDestroy {
 
   private async simpleMutation(method: string): Promise<void> {
     try {
-      await this.ubus.call<ApiEnvelope<unknown>>(method, {});
+      await this.ubus.call<unknown>(method, {});
     } catch (error) {
       this.error.set(this.message(error));
     }
@@ -158,28 +152,36 @@ export class UneticStore implements OnDestroy {
   private isConnecting = false;
 
   private async connect(): Promise<void> {
-    if (this.isConnecting) return;
+    if (this.isConnecting) {
+      return;
+    }
     this.isConnecting = true;
-    
+
     try {
+      this.ubus.stopSubscription();
+      this.cancelSubscription();
       window.clearTimeout(this.reconnectTimer);
       this.reconnectTimer = undefined;
       window.clearInterval(this.continueTimer);
       this.continueTimer = undefined;
       const subRes = await this.ubus.call<{ subscription_id: string }>(
         'state.subscribe.create',
-        { ttl_mins: 5 }
+        { ttl_mins: 5 },
       );
       this.subscriptionId = subRes.subscription_id;
       this.continueTimer = window.setInterval(() => {
         if (this.subscriptionId) {
-          void this.ubus.call('state.subscribe.continue', { subscription_id: this.subscriptionId }).catch(() => {});
+          void this.ubus
+            .call('state.subscribe.continue', {
+              subscription_id: this.subscriptionId,
+            })
+            .catch(() => {});
         }
       }, APP_CONSTANTS.UBUS_SSE_CONTINUE_MS);
 
       await this.ubus.subscribe(
-        (value) => this.acceptIncomingState(value),
-        (patch) => this.applyPatch(patch),
+        (value) => this.applyUpdate(resolveEvent(this.state(), value)),
+        (patch) => this.applyUpdate(resolvePatch(this.state(), patch)),
         () => {
           this.connected.set(false);
           this.scheduleReconnect();
@@ -206,11 +208,12 @@ export class UneticStore implements OnDestroy {
   }
 
   private async refresh(): Promise<void> {
-    const state = await this.ubus.call<PublicState>(
-      'state.get',
-      {},
-    );
-    this.applySnapshot(state);
+    const state = await this.ubus.call<PublicState>('state.get', {});
+    const update = resolveSnapshot(this.state(), state);
+    if (update.action === 'refresh') {
+      throw new Error('state.get returned an invalid state');
+    }
+    this.applyUpdate(update);
     if (!this.systemInfo()) {
       void this.fetchSystemInfo();
     }
@@ -232,96 +235,19 @@ export class UneticStore implements OnDestroy {
     }, APP_CONSTANTS.POLLING_INTERVAL_MS);
   }
 
-  private acceptIncomingState(value: unknown): void {
-    if (!this.isPublicState(value)) {
+  private applyUpdate(update: StateUpdate): void {
+    if (update.action === 'apply') {
+      this.applyState(update.state);
+    } else if (update.action === 'refresh') {
       void this.refresh();
-      return;
     }
-
-    const current = this.state();
-    if (current) {
-      if (
-        current.boot_id !== value.boot_id ||
-        value.event_seq > current.event_seq + 1
-      ) {
-        void this.refresh();
-        return;
-      }
-      if (value.event_seq <= current.event_seq) {
-        return;
-      }
-    }
-
-    this.applyState(value);
-  }
-
-  private applySnapshot(state: PublicState): void {
-    const current = this.state();
-    if (
-      current &&
-      current.boot_id === state.boot_id &&
-      state.event_seq < current.event_seq
-    ) {
-      return;
-    }
-    this.applyState(state);
-  }
-
-  private applyPatch(patch: any): void {
-    const current = this.state();
-    if (!current) {
-      void this.refresh();
-      return;
-    }
-    if (patch.boot_id !== undefined && current.boot_id !== patch.boot_id) {
-      void this.refresh();
-      return;
-    }
-    if (patch.event_seq !== undefined) {
-      if (patch.event_seq > current.event_seq + 1) {
-        void this.refresh();
-        return;
-      }
-      if (patch.event_seq <= current.event_seq) {
-        return;
-      }
-    }
-    
-    const nextState = this.mergePatch(current, patch);
-    this.applyState(nextState);
   }
 
   private applyState(state: PublicState): void {
     this.state.set(state);
     this.connected.set(true);
 
-    if (state.traffic?.devices) {
-      for (const [mac, stats] of Object.entries(state.traffic.devices)) {
-        let history = this.deviceHistory.get(mac);
-        if (!history) {
-          history = [];
-          this.deviceHistory.set(mac, history);
-        }
-        history.push(stats.rx_bps);
-        if (history.length > 60) {
-          history.shift();
-        }
-      }
-    }
-
-    if (state.traffic?.ifaces) {
-      for (const [ifname, stats] of Object.entries(state.traffic.ifaces)) {
-        let history = this.ifaceHistory.get(ifname);
-        if (!history) {
-          history = [];
-          this.ifaceHistory.set(ifname, history);
-        }
-        history.push(stats.rx_bps);
-        if (history.length > 60) {
-          history.shift();
-        }
-      }
-    }
+    this.trafficHistory.add(state.traffic);
 
     const last = state.last_user_operation;
     if (this.currentRequestId && last?.request_id === this.currentRequestId) {
@@ -343,17 +269,6 @@ export class UneticStore implements OnDestroy {
         this.error.set(null);
       }
     }
-  }
-
-  private isPublicState(value: unknown): value is PublicState {
-    if (!value || typeof value !== 'object') {
-      return false;
-    }
-    const state = value as Partial<PublicState>;
-    return (
-      typeof state.boot_id === 'string' &&
-      !!state.wifi
-    );
   }
 
   private message(error: unknown): string {

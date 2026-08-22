@@ -6,7 +6,9 @@
   } @else {
     <div class="ports-list">
       @for (port of numberedPorts(); track port.id) {
-        <ng-container *ngTemplateOutlet="portCard; context: { $implicit: port }"></ng-container>
+        <ng-container
+          *ngTemplateOutlet="portCard; context: { $implicit: port }"
+        ></ng-container>
       }
     </div>
 
@@ -14,7 +16,9 @@
       <h2>Extender {{ extender.key }} Ports</h2>
       <div class="ports-list">
         @for (port of formatPorts($any(extender.value)); track port.id) {
-          <ng-container *ngTemplateOutlet="portCard; context: { $implicit: port }"></ng-container>
+          <ng-container
+            *ngTemplateOutlet="portCard; context: { $implicit: port }"
+          ></ng-container>
         }
       </div>
     }
@@ -29,20 +33,19 @@
         {{ port.displaySpeed }}
       </span>
     </div>
-    
-    @if (getPortStats(port.ifname); as stats) {
-      <div class="port-traffic" style="font-size: 0.85em; margin-bottom: 8px; color: #6b7280;">
-        ↓ {{ formatBps(stats.rx) }}  ↑ {{ formatBps(stats.tx) }}
+
+    @if (getPortStats(port.name); as stats) {
+      <div
+        class="port-traffic"
+        style="font-size: 0.85em; margin-bottom: 8px; color: #6b7280"
+      >
+        ↓ {{ formatBps(stats.rx) }} ↑ {{ formatBps(stats.tx) }}
       </div>
     }
-    @if (hasSparklineData(port.ifname)) {
-      <div style="width: 100%; margin-bottom: 8px; height: 20px;">
-        <app-sparkline [values]="getIfaceSparkline(port.ifname)"></app-sparkline>
+    @if (hasSparklineData(port.name)) {
+      <div style="width: 100%; margin-bottom: 8px; height: 20px">
+        <app-sparkline [values]="getIfaceSparkline(port.name)"></app-sparkline>
       </div>
-    }
-    
-    @if (port.vlan !== null) {
-      <div class="vlan">VLAN: {{ port.vlan }}</div>
     }
 
     @if (port.connections && port.connections.length > 0) {

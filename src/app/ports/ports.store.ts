@@ -1,6 +1,5 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
 import { PortInfo } from './ports.model';
-import { ApiEnvelope } from '../core/models';
 import { UbusClient } from '../core/ubus-client.service';
 import { APP_CONSTANTS } from '../core/constants';
 
@@ -21,26 +20,10 @@ export class PortsStore implements OnDestroy {
 
     this.loading.set(true);
     try {
-      const envelope = await this.ubus.call<
-        ApiEnvelope<PortInfo[] | { ports: PortInfo[] }>
-      >('ports.list', {});
-
-      if (envelope.result !== undefined) {
-        let list: PortInfo[] = [];
-        if (Array.isArray(envelope.result)) {
-          list = envelope.result;
-        } else if (
-          typeof envelope.result === 'object' &&
-          envelope.result !== null &&
-          'ports' in envelope.result &&
-          Array.isArray(envelope.result.ports)
-        ) {
-          list = envelope.result.ports;
-        }
-        this.ports.set(list);
-        this.error.set(null);
-        return list;
-      }
+      const ports = await this.ubus.call<PortInfo[]>('ports.list', {});
+      this.ports.set(ports);
+      this.error.set(null);
+      return ports;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.error.set(message);

@@ -4,11 +4,23 @@ import { signal } from '@angular/core';
 import { App } from './app';
 import { UneticStore } from './core/unetic-store.service';
 import { WanStore } from './wan/wan.store';
-import { PublicState } from './core/models';
+import { PublicState } from './core/public-state.model';
 import { WanPublicState } from './wan/wan.model';
 
 function createMockState(): PublicState {
-  return { pending_extenders: [], extender_pairing_status: 'unpaired', extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
+  return {
+    pending_extenders: [],
+    extender_pairing_status: 'unpaired',
+    extenders: [],
+    extender_ports: {},
+    dns: {
+      upstream: [],
+      local_domain: null,
+      dhcp_start: 100,
+      dhcp_limit: 150,
+      dhcp_lease_hours: 24,
+      custom_records: [],
+    },
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -156,6 +168,8 @@ describe('App', () => {
     );
 
     expect(tabNames).toEqual([]);
-    expect(fixture.nativeElement.querySelector('app-extender-slave')).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('app-extender-slave'),
+    ).toBeTruthy();
   });
 });

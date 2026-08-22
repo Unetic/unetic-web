@@ -1,6 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { SetWifiConfigRequest } from './wifi.model';
-import { ApiEnvelope, OperationAccepted } from '../core/models';
+import { OperationAccepted } from '../core/operation.model';
 import { UneticStore } from '../core/unetic-store.service';
 import { UbusClient } from '../core/ubus-client.service';
 
@@ -49,11 +49,11 @@ export class WifiStore {
     };
 
     try {
-      const envelope = await this.ubus.call<ApiEnvelope<OperationAccepted>>(
+      const accepted = await this.ubus.call<OperationAccepted>(
         'wifi.set_config',
         payload,
       );
-      if (envelope.result?.noop) {
+      if (accepted.noop) {
         this.uneticStore.currentRequestId = null;
         const currentState = this.uneticStore.state();
         if (currentState) {

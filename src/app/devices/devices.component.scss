@@ -106,7 +106,7 @@
   max-width: 90vw;
   background: white;
   z-index: 1001;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
 }
@@ -117,7 +117,7 @@
   align-items: center;
   padding: 1rem;
   border-bottom: 1px solid #ddd;
-  
+
   h2 {
     margin: 0;
   }
@@ -137,12 +137,12 @@
 
 .form-group {
   margin-bottom: 1rem;
-  
+
   label {
     display: block;
     margin-bottom: 0.5rem;
   }
-  
+
   input.form-control {
     width: 100%;
     padding: 0.5rem;
@@ -153,12 +153,12 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  
+
   .form-control {
     padding: 0.5rem;
     width: 80px;
   }
-  
+
   select.form-control {
     width: auto;
   }
@@ -168,8 +168,9 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1rem;
-  
-  th, td {
+
+  th,
+  td {
     padding: 0.5rem;
     border-bottom: 1px solid #ddd;
     text-align: left;

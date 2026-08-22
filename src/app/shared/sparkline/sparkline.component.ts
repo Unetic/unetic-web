@@ -6,7 +6,11 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <svg viewBox="0 0 60 20" preserveAspectRatio="none" style="width: 100%; height: 20px; display: block; overflow: visible;">
+    <svg
+      viewBox="0 0 60 20"
+      preserveAspectRatio="none"
+      style="width: 100%; height: 20px; display: block; overflow: visible;"
+    >
       <polyline
         [attr.points]="points"
         fill="none"
@@ -16,7 +20,7 @@ import { CommonModule } from '@angular/common';
         stroke-linejoin="round"
       />
     </svg>
-  `
+  `,
 })
 export class SparklineComponent implements OnChanges {
   @Input() values: number[] = [];
@@ -38,17 +42,19 @@ export class SparklineComponent implements OnChanges {
 
     const max = Math.max(...this.values);
     const offset = 60 - this.values.length;
-    
-    this.points = this.values.map((val, idx) => {
-      let y = 18;
-      if (max > 0) {
-        y = 20 - (val / max) * 18;
-      } else {
-        // If all values 0, flat line at the bottom (say y=18 to keep margin or y=20)
-        // Requirement says "flat line at the bottom". Let's use 18 to match max=0 behavior in the formula if val=0, wait, if max=0, we can't divide by 0. So y=20. Wait, requirement says "flat line at the bottom". If val=0 and max>0, y=20. So let's make it 20.
-        y = 20;
-      }
-      return `${offset + idx},${y}`;
-    }).join(' ');
+
+    this.points = this.values
+      .map((val, idx) => {
+        let y = 18;
+        if (max > 0) {
+          y = 20 - (val / max) * 18;
+        } else {
+          // If all values 0, flat line at the bottom (say y=18 to keep margin or y=20)
+          // Requirement says "flat line at the bottom". Let's use 18 to match max=0 behavior in the formula if val=0, wait, if max=0, we can't divide by 0. So y=20. Wait, requirement says "flat line at the bottom". If val=0 and max>0, y=20. So let's make it 20.
+          y = 20;
+        }
+        return `${offset + idx},${y}`;
+      })
+      .join(' ');
   }
 }

@@ -16,30 +16,34 @@ export class PortsComponent implements OnInit, OnDestroy {
   readonly numberedPorts = computed(() => {
     let lanCount = 1;
     let wanCount = 1;
-    const sortedPorts = [...this.store.ports()].sort((a, b) => a.id - b.id);
+    const sortedPorts = [...this.store.ports()].sort((a, b) =>
+      a.id.localeCompare(b.id, undefined, { numeric: true }),
+    );
     return sortedPorts.map((port) => {
       let displayName = '';
-      if (port.type === 'LAN') {
+      if (port.port_type === 'lan') {
         displayName = `LAN ${lanCount++}`;
-      } else if (port.type === 'WAN') {
+      } else if (port.port_type === 'wan') {
         displayName = `WAN ${wanCount++}`;
       } else {
-        displayName = port.type;
+        displayName = port.name;
       }
       return {
         ...port,
         displayName,
-        displaySpeed: port.speed === '0' ? 'Unplugged' : port.speed.replace(/_/g, ' '),
-        isUnplugged: port.speed === '0'
+        displaySpeed: this.formatSpeed(port.speed),
+        isUnplugged: port.speed === 'NoLink',
       };
     });
   });
 
-  readonly extenderPorts = computed(() => this.uneticStore.state()?.extender_ports ?? {});
+  readonly extenderPorts = computed(
+    () => this.uneticStore.state()?.extender_ports ?? {},
+  );
 
   constructor(
     public readonly store: PortsStore,
-    private readonly uneticStore: UneticStore
+    private readonly uneticStore: UneticStore,
   ) {}
 
   ngOnInit(): void {
@@ -63,7 +67,7 @@ export class PortsComponent implements OnInit, OnDestroy {
 
   hasSparklineData(ifname?: string): boolean {
     const data = this.getIfaceSparkline(ifname);
-    return data.some(val => val > 0);
+    return data.some((val) => val > 0);
   }
 
   formatBps(n: number): string {
@@ -75,22 +79,30 @@ export class PortsComponent implements OnInit, OnDestroy {
   formatPorts(ports: PortInfo[]) {
     let lanCount = 1;
     let wanCount = 1;
-    const sortedPorts = [...ports].sort((a, b) => a.id - b.id);
+    const sortedPorts = [...ports].sort((a, b) =>
+      a.id.localeCompare(b.id, undefined, { numeric: true }),
+    );
     return sortedPorts.map((port) => {
       let displayName = '';
-      if (port.type === 'LAN') {
+      if (port.port_type === 'lan') {
         displayName = `LAN ${lanCount++}`;
-      } else if (port.type === 'WAN') {
+      } else if (port.port_type === 'wan') {
         displayName = `WAN ${wanCount++}`;
       } else {
-        displayName = port.type;
+        displayName = port.name;
       }
       return {
         ...port,
         displayName,
-        displaySpeed: port.speed === '0' ? 'Unplugged' : port.speed.replace(/_/g, ' '),
-        isUnplugged: port.speed === '0'
+        displaySpeed: this.formatSpeed(port.speed),
+        isUnplugged: port.speed === 'NoLink',
       };
     });
+  }
+
+  private formatSpeed(speed: PortInfo['speed']): string {
+    if (speed === 'NoLink') return 'Unplugged';
+    const megabits = Number(speed.replace('Speed', ''));
+    return megabits >= 1000 ? `${megabits / 1000} Gbps` : `${megabits} Mbps`;
   }
 }

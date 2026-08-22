@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { ApiEnvelope, OperationAccepted } from '../core/models';
+import { OperationAccepted } from '../core/operation.model';
 import { WanProtocol, WanPublicState } from './wan.model';
 import { UneticStore } from '../core/unetic-store.service';
 import { UbusClient } from '../core/ubus-client.service';
@@ -100,15 +100,12 @@ export class WanStore {
     };
 
     try {
-      const envelope = await this.ubus.call<ApiEnvelope<OperationAccepted>>(
-        'wan.set',
-        {
-          wan: wanPayload,
-          expected_revision: state.revision,
-          request_id: requestId,
-        },
-      );
-      if (envelope.result?.noop) {
+      const accepted = await this.ubus.call<OperationAccepted>('wan.set', {
+        wan: wanPayload,
+        expected_revision: state.revision,
+        request_id: requestId,
+      });
+      if (accepted.noop) {
         this.uneticStore.currentRequestId = null;
       }
     } catch {

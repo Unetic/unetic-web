@@ -10,6 +10,13 @@ interface JsonRpcResponse<T> {
   };
 }
 
+interface ApiEnvelope<T> {
+  idempotence_token: string;
+  event_seq: number;
+  error: number;
+  result?: T;
+}
+
 const ANONYMOUS_SID = '00000000000000000000000000000000';
 
 @Injectable({ providedIn: 'root' })
@@ -38,9 +45,14 @@ export class UbusClient {
   }
 
   logout(): void {
-    this.abortSubscription?.abort();
+    this.stopSubscription();
     this.sid = null;
     sessionStorage.removeItem('unetic.sid');
+  }
+
+  stopSubscription(): void {
+    this.abortSubscription?.abort();
+    this.abortSubscription = undefined;
   }
 
   async call<T>(
@@ -54,14 +66,19 @@ export class UbusClient {
       ...params,
       idempotence_token: crypto.randomUUID(),
     };
-    const response = await this.rpc<T>(this.sid, 'unetic', method, payload);
-    if (response && typeof response === 'object' && 'error' in response) {
-      const err = (response as any).error;
-      if (typeof err === 'number' && err !== 0) {
-        throw new Error(`API Error ${err}`);
-      }
+    const envelope = await this.rpc<ApiEnvelope<T>>(
+      this.sid,
+      'unetic',
+      method,
+      payload,
+    );
+    if (envelope.error !== 0) {
+      throw new Error(`API error ${envelope.error}`);
     }
-    return response;
+    if (envelope.result === undefined) {
+      throw new Error('Core returned a malformed API response');
+    }
+    return envelope.result;
   }
 
   async subscribe(
@@ -94,7 +111,13 @@ export class UbusClient {
       throw new Error(`Subscription failed: HTTP ${response.status}`);
     }
 
-    void this.readSubscription(response.body, abort, onState, onPatch, onDisconnect);
+    void this.readSubscription(
+      response.body,
+      abort,
+      onState,
+      onPatch,
+      onDisconnect,
+    );
   }
 
   private async readSubscription(
@@ -160,7 +183,9 @@ export class UbusClient {
       } else if (eventName === 'state.patched' && data.length) {
         try {
           onPatch(JSON.parse(data.join('\n')));
-        } catch {}
+        } catch {
+          // Polling will replace a malformed incremental update with a full state.
+        }
       }
 
       boundary = buffer.indexOf('\n\n');

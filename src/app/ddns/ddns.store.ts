@@ -1,14 +1,14 @@
 import { Injectable, computed } from '@angular/core';
 import { UneticStore } from '../core/unetic-store.service';
 import { UbusClient } from '../core/ubus-client.service';
-import { DdnsConfig, DdnsStatus } from './ddns.model';
+import { DdnsConfig, DdnsStatus, DdnsTestResult } from './ddns.model';
 
 export function defaultDdnsConfig(): DdnsConfig {
   return {
     enabled: false,
     provider: 'none',
     cloudflare: { zone_id: '', record_id: '', api_token: '', hostname: '' },
-    duckdns: { token: '', domain: '' }
+    duckdns: { token: '', domain: '' },
   };
 }
 
@@ -18,8 +18,12 @@ export function defaultDdnsStatus(): DdnsStatus {
 
 @Injectable({ providedIn: 'root' })
 export class DdnsStore {
-  readonly ddnsConfig = computed(() => this.store.state()?.ddns_config ?? defaultDdnsConfig());
-  readonly ddnsStatus = computed(() => this.store.state()?.ddns_status ?? defaultDdnsStatus());
+  readonly ddnsConfig = computed(
+    () => this.store.state()?.ddns_config ?? defaultDdnsConfig(),
+  );
+  readonly ddnsStatus = computed(
+    () => this.store.state()?.ddns_status ?? defaultDdnsStatus(),
+  );
 
   constructor(
     private readonly store: UneticStore,
@@ -27,20 +31,13 @@ export class DdnsStore {
   ) {}
 
   async setConfig(cfg: DdnsConfig): Promise<void> {
-    const reqId = crypto.randomUUID();
-    this.store.currentRequestId = reqId;
-    try {
-      await this.ubus.call('ddns.set', {
-        ...cfg,
-        request_id: reqId,
-      });
-    } catch (e) {
-      this.store.currentRequestId = null;
-      throw e;
-    }
+    await this.ubus.call('ddns.set', {
+      ...cfg,
+      request_id: crypto.randomUUID(),
+    });
   }
 
-  async test(): Promise<any> {
-    return this.ubus.call('ddns.test', {});
+  async test(): Promise<DdnsTestResult> {
+    return this.ubus.call<DdnsTestResult>('ddns.test', {});
   }
 }

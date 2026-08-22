@@ -4,11 +4,23 @@ import { WanComponent } from './wan.component';
 import { WanStore } from '../wan/wan.store';
 import { UneticStore } from '../core/unetic-store.service';
 import { WanProtocol } from './wan.model';
-import { PublicState } from '../core/models';
+import { PublicState } from '../core/public-state.model';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
-  return { pending_extenders: [], extender_pairing_status: 'unpaired', extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
-    
+  return {
+    pending_extenders: [],
+    extender_pairing_status: 'unpaired',
+    extenders: [],
+    extender_ports: {},
+    dns: {
+      upstream: [],
+      local_domain: null,
+      dhcp_start: 100,
+      dhcp_limit: 150,
+      dhcp_lease_hours: 24,
+      custom_records: [],
+    },
+
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,

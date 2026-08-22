@@ -1,10 +1,17 @@
-import { Component, OnDestroy, OnInit, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+  computed,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { DevicesStore } from '../devices/devices.store';
-import { Device, PortForward } from './devices.model';
+import { Device, NewPortForward, PortForward } from './devices.model';
 import { UneticStore } from '../core/unetic-store.service';
-import { KnownExtender, PendingExtender } from '../core/models';
 import { SparklineComponent } from '../shared/sparkline/sparkline.component';
 import { UbusClient } from '../core/ubus-client.service';
 
@@ -25,7 +32,9 @@ export class DevicesComponent implements OnInit, OnDestroy {
 
   selectedDevice = signal<Device | null>(null);
 
-  pendingExtenders = computed(() => this.uneticStore.state()?.pending_extenders || []);
+  pendingExtenders = computed(
+    () => this.uneticStore.state()?.pending_extenders || [],
+  );
 
   async acceptExtender(mac: string) {
     try {
@@ -49,7 +58,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
 
   hasSparklineData(mac: string): boolean {
     const data = this.getDeviceSparkline(mac);
-    return data.some(val => val > 0);
+    return data.some((val) => val > 0);
   }
 
   getDeviceStats(mac: string) {
@@ -62,7 +71,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
     if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB/s';
     return (n / (1024 * 1024)).toFixed(1) + ' MB/s';
   }
-  
+
   editName = '';
   editIsStaticIp = false;
 
@@ -81,13 +90,13 @@ export class DevicesComponent implements OnInit, OnDestroy {
   extenders = computed(() => this.uneticStore.state()?.extenders || []);
 
   getExtenderInfo(mac: string): string {
-    const ext = this.extenders().find(e => e.mac === mac);
+    const ext = this.extenders().find((e) => e.mac === mac);
     if (!ext) return mac;
     return ext.model || ext.ip;
   }
 
   isExtender(mac: string): boolean {
-    return this.extenders().some(e => e.mac === mac);
+    return this.extenders().some((e) => e.mac === mac);
   }
 
   formatDistance(distance: number | undefined): string {
@@ -97,17 +106,17 @@ export class DevicesComponent implements OnInit, OnDestroy {
   }
 
   getConnectionLabel(device: Device): string {
-    if (!device.connection || (device.connection as any).type === 'Unknown') {
+    if (!device.connection || device.connection.type === 'Unknown') {
       return 'Offline';
     }
-    const conn = device.connection as any;
-    if (conn.type === 'Wired' || conn.port_id !== undefined) {
+    const conn = device.connection;
+    if (conn.type === 'Wired') {
       return `LAN (Port ${conn.port_id})`;
     }
-    if (conn.type === 'Wireless' || conn.signal_pct !== undefined) {
-      return `Wi-Fi (${conn.signal_pct}%)`;
+    if (conn.type === 'Wireless') {
+      return `Wi-Fi (${conn.signal_dbm} dBm)`;
     }
-    return device.connection_type;
+    return `Via ${conn.extender_mac}`;
   }
 
   async register(device: Device) {
@@ -132,9 +141,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
       name: this.editName,
       is_static_ip: this.editIsStaticIp,
     });
-    // Update local state if needed
-    device.name = this.editName;
-    device.is_static_ip = this.editIsStaticIp;
+    this.refreshSelectedDevice(device.uuid);
   }
 
   async deleteDevice() {
@@ -147,22 +154,25 @@ export class DevicesComponent implements OnInit, OnDestroy {
   async addPortForward() {
     const device = this.selectedDevice();
     if (!device || !device.uuid) return;
-    const pf: PortForward = {
+    const pf: NewPortForward = {
       protocol: this.newPfProtocol,
       external_port: this.newPfExternalPort,
       internal_port: this.newPfInternalPort,
     };
     await this.store.addPortForward(device.uuid, pf);
-    if (!device.port_forwards) device.port_forwards = [];
-    device.port_forwards.push(pf);
+    this.refreshSelectedDevice(device.uuid);
   }
 
   async removePortForward(pf: PortForward) {
     const device = this.selectedDevice();
     if (!device || !device.uuid) return;
-    await this.store.removePortForward(device.uuid, pf);
-    if (device.port_forwards) {
-      device.port_forwards = device.port_forwards.filter(p => p !== pf);
-    }
+    await this.store.removePortForward(device.uuid, pf.id);
+    this.refreshSelectedDevice(device.uuid);
+  }
+
+  private refreshSelectedDevice(uuid: string): void {
+    this.selectedDevice.set(
+      this.store.devices().find((device) => device.uuid === uuid) ?? null,
+    );
   }
 }

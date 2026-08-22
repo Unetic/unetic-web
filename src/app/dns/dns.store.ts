@@ -13,46 +13,25 @@ export class DnsStore {
   ) {}
 
   async setConfig(cfg: DnsConfig): Promise<void> {
-    const reqId = crypto.randomUUID();
-    this.store.currentRequestId = reqId;
-    try {
-      await this.ubus.call('dns.set', {
-        ...cfg,
-        request_id: reqId,
-      });
-    } catch (e) {
-      this.store.currentRequestId = null;
-      throw e;
-    }
+    await this.ubus.call('dns.set', {
+      ...cfg,
+      request_id: crypto.randomUUID(),
+    });
   }
 
   async addRecord(record: Omit<DnsRecord, 'id'>): Promise<void> {
-    const reqId = crypto.randomUUID();
-    this.store.currentRequestId = reqId;
-    try {
-      await this.ubus.call('dns.record.add', {
-        id: crypto.randomUUID(),
-        hostname: record.hostname,
-        ip: record.ip,
-        request_id: reqId,
-      });
-    } catch (e) {
-      this.store.currentRequestId = null;
-      throw e;
-    }
+    await this.ubus.call('dns.record.add', {
+      id: crypto.randomUUID(),
+      hostname: record.hostname,
+      ip: record.ip,
+      request_id: crypto.randomUUID(),
+    });
   }
 
   async removeRecord(id: string): Promise<void> {
-    const reqId = crypto.randomUUID();
-    this.store.currentRequestId = reqId;
-    try {
-      await this.ubus.call('dns.record.remove', {
-        id,
-        request_id: reqId,
-      });
-    } catch (e) {
-      this.store.currentRequestId = null;
-      throw e;
-    }
+    await this.ubus.call('dns.record.remove', {
+      id,
+      request_id: crypto.randomUUID(),
+    });
   }
 }

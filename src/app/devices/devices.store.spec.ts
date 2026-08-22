@@ -3,11 +3,23 @@ import { DevicesStore } from './devices.store';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
 import { Device } from './devices.model';
-import { PublicState } from '../core/models';
+import { PublicState } from '../core/public-state.model';
 
 function createMockState(): PublicState {
-  return { pending_extenders: [], extender_pairing_status: 'unpaired', extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
-    
+  return {
+    pending_extenders: [],
+    extender_pairing_status: 'unpaired',
+    extenders: [],
+    extender_ports: {},
+    dns: {
+      upstream: [],
+      local_domain: null,
+      dhcp_start: 100,
+      dhcp_limit: 150,
+      dhcp_lease_hours: 24,
+      custom_records: [],
+    },
+
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -95,22 +107,16 @@ describe('DevicesStore', () => {
         mac: 'aa:bb:cc:dd:ee:01',
         ip: '192.168.1.100',
         hostname: 'my-phone',
-        connection_type: 'wifi',
+        connection: { type: 'Wireless', signal_dbm: -50, distance_m: 2 },
       },
       {
         mac: 'aa:bb:cc:dd:ee:02',
         ip: '192.168.1.101',
         hostname: null,
-        connection_type: 'ethernet',
+        connection: { type: 'Wired', port_id: 1 },
       },
     ];
-    const mockEnvelope = {
-      
-      ok: true,
-      result: mockDevices,
-      state: createMockState(),
-    };
-    mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+    mockUbus.call.mockResolvedValueOnce(mockDevices);
 
     const result = await store.fetchDevices();
 
@@ -120,29 +126,6 @@ describe('DevicesStore', () => {
     expect(result).toEqual(mockDevices);
     expect(store.error()).toBeNull();
     expect(store.loading()).toBe(false);
-  });
-
-  it('fetches devices nested in an object successfully', async () => {
-    const mockDevices: Device[] = [
-      {
-        mac: 'aa:bb:cc:dd:ee:03',
-        ip: '192.168.1.102',
-        hostname: 'laptop',
-        connection_type: 'wifi',
-      },
-    ];
-    const mockEnvelope = {
-      
-      ok: true,
-      result: { devices: mockDevices },
-      state: createMockState(),
-    };
-    mockUbus.call.mockResolvedValueOnce(mockEnvelope);
-
-    const result = await store.fetchDevices();
-
-    expect(store.devices()).toEqual(mockDevices);
-    expect(result).toEqual(mockDevices);
   });
 
   it('handles domain error in envelope', async () => {
@@ -166,12 +149,7 @@ describe('DevicesStore', () => {
   it('polls at the specified interval', () => {
     vi.useFakeTimers();
     try {
-      mockUbus.call.mockResolvedValue({
-        
-        ok: true,
-        result: [],
-        state: createMockState(),
-      });
+      mockUbus.call.mockResolvedValue([]);
 
       store.startPolling(5000);
       expect(mockUbus.call).toHaveBeenCalledTimes(1);

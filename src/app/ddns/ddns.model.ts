@@ -24,3 +24,8 @@ export interface DdnsStatus {
   last_update_ts: number | null;
   last_error: string | null;
 }
+
+export interface DdnsTestResult {
+  success: boolean;
+  ip: string;
+}

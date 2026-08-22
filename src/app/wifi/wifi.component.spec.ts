@@ -3,11 +3,23 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WifiComponent } from './wifi.component';
 import { WifiStore } from '../wifi/wifi.store';
 import { UneticStore } from '../core/unetic-store.service';
-import { PublicState } from '../core/models';
+import { PublicState } from '../core/public-state.model';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
-  return { pending_extenders: [], extender_pairing_status: 'unpaired', extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
-    
+  return {
+    pending_extenders: [],
+    extender_pairing_status: 'unpaired',
+    extenders: [],
+    extender_ports: {},
+    dns: {
+      upstream: [],
+      local_domain: null,
+      dhcp_start: 100,
+      dhcp_limit: 150,
+      dhcp_lease_hours: 24,
+      custom_records: [],
+    },
+
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -157,7 +169,10 @@ describe('WifiComponent', () => {
     const buttons = fixture.nativeElement.querySelectorAll(
       'button',
     ) as NodeListOf<HTMLButtonElement>;
-    const saveButton = Array.from(buttons).find(b => b.textContent?.includes('Save') || b.textContent?.includes('Applying'));
+    const saveButton = Array.from(buttons).find(
+      (b) =>
+        b.textContent?.includes('Save') || b.textContent?.includes('Applying'),
+    );
     expect(saveButton!.disabled).toBe(true);
   });
 
@@ -168,7 +183,10 @@ describe('WifiComponent', () => {
     const buttons = fixture.nativeElement.querySelectorAll(
       'button',
     ) as NodeListOf<HTMLButtonElement>;
-    const saveButton = Array.from(buttons).find(b => b.textContent?.includes('Save') || b.textContent?.includes('Applying'));
+    const saveButton = Array.from(buttons).find(
+      (b) =>
+        b.textContent?.includes('Save') || b.textContent?.includes('Applying'),
+    );
     saveButton!.click();
 
     expect(mockWifiStore.saveConfig).toHaveBeenCalled();

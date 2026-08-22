@@ -3,11 +3,23 @@ import { signal } from '@angular/core';
 import { WifiStore } from './wifi.store';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
-import { PublicState } from '../core/models';
+import { PublicState } from '../core/public-state.model';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
-  return { pending_extenders: [], extender_pairing_status: 'unpaired', extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
-    
+  return {
+    pending_extenders: [],
+    extender_pairing_status: 'unpaired',
+    extenders: [],
+    extender_ports: {},
+    dns: {
+      upstream: [],
+      local_domain: null,
+      dhcp_start: 100,
+      dhcp_limit: 150,
+      dhcp_lease_hours: 24,
+      custom_records: [],
+    },
+
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -175,13 +187,11 @@ describe('WifiStore', () => {
       store.draftEncryption.set('psk2');
       store.draftKey.set('secretpass123');
 
-      const mockEnvelope = {
-        
-        ok: true,
-        result: { operation_id: 'op-1', status: 'accepted', noop: false },
-        state: createMockState(),
-      };
-      mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+      mockUbus.call.mockResolvedValueOnce({
+        operation_id: 'op-1',
+        status: 'accepted',
+        noop: false,
+      });
 
       await store.saveConfig();
 
@@ -194,7 +204,6 @@ describe('WifiStore', () => {
           expected_revision: 5,
         }),
       );
-
     });
 
     it('calls wifi.set_config without key when encryption is none', async () => {
@@ -202,13 +211,11 @@ describe('WifiStore', () => {
       store.draftEncryption.set('none');
       store.draftKey.set('');
 
-      const mockEnvelope = {
-        
-        ok: true,
-        result: { operation_id: 'op-2', status: 'accepted', noop: false },
-        state: createMockState(),
-      };
-      mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+      mockUbus.call.mockResolvedValueOnce({
+        operation_id: 'op-2',
+        status: 'accepted',
+        noop: false,
+      });
 
       await store.saveConfig();
 
@@ -235,13 +242,11 @@ describe('WifiStore', () => {
         },
       });
 
-      const mockEnvelope = {
-        
-        ok: true,
-        result: { operation_id: 'op-3', status: 'succeeded', noop: true },
-        state: returnedState,
-      };
-      mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+      mockUbus.call.mockResolvedValueOnce({
+        operation_id: 'op-3',
+        status: 'succeeded',
+        noop: true,
+      });
       mockUneticStore.state.set(returnedState as any);
 
       await store.saveConfig();

@@ -1,4 +1,9 @@
-import { Component, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  computed,
+} from '@angular/core';
 import { UneticStore } from '../core/unetic-store.service';
 import { WanStore } from '../wan/wan.store';
 
@@ -13,7 +18,9 @@ export class ExtenderSlaveComponent {
   readonly store = inject(UneticStore);
   readonly wanStore = inject(WanStore);
 
-  readonly pairingStatus = computed(() => this.store.state()?.extender_pairing_status || 'unpaired');
+  readonly pairingStatus = computed(
+    () => this.store.state()?.extender_pairing_status || 'unpaired',
+  );
 
   async leaveMesh() {
     this.wanStore.draftWanProto.set('dhcp');

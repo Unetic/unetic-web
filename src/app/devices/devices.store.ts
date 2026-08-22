@@ -1,6 +1,5 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
-import { Device, PortForward } from './devices.model';
-import { ApiEnvelope } from '../core/models';
+import { Device, NewPortForward } from './devices.model';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
 import { APP_CONSTANTS } from '../core/constants';
@@ -25,26 +24,10 @@ export class DevicesStore implements OnDestroy {
 
     this.loading.set(true);
     try {
-      const envelope = await this.ubus.call<
-        ApiEnvelope<Device[] | { devices: Device[] }>
-      >('devices.list', {});
-
-      if (envelope.result !== undefined) {
-        let list: Device[] = [];
-        if (Array.isArray(envelope.result)) {
-          list = envelope.result;
-        } else if (
-          typeof envelope.result === 'object' &&
-          envelope.result !== null &&
-          'devices' in envelope.result &&
-          Array.isArray(envelope.result.devices)
-        ) {
-          list = envelope.result.devices;
-        }
-        this.devices.set(list);
-        this.error.set(null);
-        return list;
-      }
+      const devices = await this.ubus.call<Device[]>('devices.list', {});
+      this.devices.set(devices);
+      this.error.set(null);
+      return devices;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.error.set(message);
@@ -59,7 +42,10 @@ export class DevicesStore implements OnDestroy {
     await this.fetchDevices();
   }
 
-  async updateDevice(uuid: string, updates: Partial<Device>): Promise<void> {
+  async updateDevice(
+    uuid: string,
+    updates: Pick<Device, 'name' | 'is_static_ip'>,
+  ): Promise<void> {
     await this.ubus.call('devices.update', { uuid, ...updates });
     await this.fetchDevices();
   }
@@ -69,13 +55,16 @@ export class DevicesStore implements OnDestroy {
     await this.fetchDevices();
   }
 
-  async addPortForward(uuid: string, port_forward: PortForward): Promise<void> {
+  async addPortForward(
+    uuid: string,
+    port_forward: NewPortForward,
+  ): Promise<void> {
     await this.ubus.call('devices.add_port_forward', { uuid, port_forward });
     await this.fetchDevices();
   }
 
-  async removePortForward(uuid: string, port_forward: PortForward): Promise<void> {
-    await this.ubus.call('devices.remove_port_forward', { uuid, port_forward });
+  async removePortForward(uuid: string, pfId: string): Promise<void> {
+    await this.ubus.call('devices.remove_port_forward', { uuid, pf_id: pfId });
     await this.fetchDevices();
   }
 

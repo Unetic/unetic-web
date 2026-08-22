@@ -2,11 +2,23 @@ import { TestBed } from '@angular/core/testing';
 import { ToolsStore } from './tools.store';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
-import { PublicState } from '../core/models';
+import { PublicState } from '../core/public-state.model';
 
 function createMockState(): PublicState {
-  return { pending_extenders: [], extender_pairing_status: 'unpaired', extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
-    
+  return {
+    pending_extenders: [],
+    extender_pairing_status: 'unpaired',
+    extenders: [],
+    extender_ports: {},
+    dns: {
+      upstream: [],
+      local_domain: null,
+      dhcp_start: 100,
+      dhcp_limit: 150,
+      dhcp_lease_hours: 24,
+      custom_records: [],
+    },
+
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -82,15 +94,9 @@ describe('ToolsStore', () => {
 
   it('ping executes tools.ping ubus call with object result', async () => {
     store.targetHost.set('8.8.8.8');
-    const mockEnvelope = {
-      
-      ok: true,
-      result: {
-        output: 'PING 8.8.8.8: 56 data bytes\n64 bytes from 8.8.8.8: seq=0',
-      },
-      state: createMockState(),
-    };
-    mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+    mockUbus.call.mockResolvedValueOnce({
+      output: 'PING 8.8.8.8: 56 data bytes\n64 bytes from 8.8.8.8: seq=0',
+    });
 
     const result = await store.ping();
 
@@ -106,23 +112,6 @@ describe('ToolsStore', () => {
     );
     expect(store.pinging()).toBe(false);
     expect(store.error()).toBeNull();
-  });
-
-  it('ping handles string result', async () => {
-    store.targetHost.set('google.com');
-    const mockEnvelope = {
-      
-      ok: true,
-      result: 'PING google.com (142.250.74.206): 56 data bytes',
-      state: createMockState(),
-    };
-    mockUbus.call.mockResolvedValueOnce(mockEnvelope);
-
-    await store.ping();
-
-    expect(store.pingOutput()).toBe(
-      'PING google.com (142.250.74.206): 56 data bytes',
-    );
   });
 
   it('ping handles domain error in envelope', async () => {

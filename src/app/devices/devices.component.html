@@ -4,14 +4,47 @@
   }
 
   @if (pendingExtenders().length > 0) {
-    <div class="pending-extenders-banner" style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
-      <h3 style="margin-top: 0;">Pending Mesh Extenders</h3>
+    <div
+      class="pending-extenders-banner"
+      style="
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+      "
+    >
+      <h3 style="margin-top: 0">Pending Mesh Extenders</h3>
       @for (ext of pendingExtenders(); track ext.mac) {
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-          <span>New Extender (MAC: <strong>{{ ext.mac }}</strong>) is trying to join the mesh.</span>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+          "
+        >
+          <span>
+            New Extender (MAC: <strong>{{ ext.mac }}</strong
+            >, pairing code: <strong>{{ ext.pairing_key }}</strong
+            >) is trying to join the mesh.
+          </span>
           <div>
-            <button type="button" class="btn btn-success" style="margin-right: 0.5rem;" (click)="acceptExtender(ext.mac)">Accept</button>
-            <button type="button" class="btn btn-danger" (click)="rejectExtender(ext.mac)">Reject</button>
+            <button
+              type="button"
+              class="btn btn-success"
+              style="margin-right: 0.5rem"
+              (click)="acceptExtender(ext.mac)"
+            >
+              Accept
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              (click)="rejectExtender(ext.mac)"
+            >
+              Reject
+            </button>
           </div>
         </div>
       }
@@ -33,23 +66,33 @@
         <tbody>
           @for (device of store.devices(); track device.mac) {
             <tr [class.offline]="!device.connection">
-              <td class="col-hostname" [class.unknown]="!device.name && !device.hostname">
+              <td
+                class="col-hostname"
+                [class.unknown]="!device.name && !device.hostname"
+              >
                 @if (device.uuid) {
-                  <span class="badge registered-badge" title="Registered Device">✓</span>
+                  <span class="badge registered-badge" title="Registered Device"
+                    >✓</span
+                  >
                 }
                 {{ device.name || device.hostname || 'Unknown Device' }}
                 @if (isExtender(device.mac)) {
                   <span class="badge badge-info ms-2">Mesh Extender</span>
                 }
-                
+
                 @if (getDeviceStats(device.mac); as stats) {
-                  <div class="device-traffic" style="font-size: 0.85em; margin-top: 4px; color: #6b7280;">
-                    ↓ {{ formatBps(stats.rx) }}  ↑ {{ formatBps(stats.tx) }}
+                  <div
+                    class="device-traffic"
+                    style="font-size: 0.85em; margin-top: 4px; color: #6b7280"
+                  >
+                    ↓ {{ formatBps(stats.rx) }} ↑ {{ formatBps(stats.tx) }}
                   </div>
                 }
                 @if (hasSparklineData(device.mac)) {
-                  <div style="width: 100%; max-width: 120px; margin-top: 4px;">
-                    <app-sparkline [values]="getDeviceSparkline(device.mac)"></app-sparkline>
+                  <div style="width: 100%; max-width: 120px; margin-top: 4px">
+                    <app-sparkline
+                      [values]="getDeviceSparkline(device.mac)"
+                    ></app-sparkline>
                   </div>
                 }
               </td>
@@ -60,15 +103,15 @@
                 <code>{{ device.mac }}</code>
               </td>
               <td class="col-connection">
-                @if ($any(device.connection)?.type === 'Wireless') {
+                @if (device.connection?.type === 'Wireless') {
                   <span class="badge text-bg-primary">
-                    Wi-Fi ({{ formatDistance($any(device.connection).distance_m) }})
+                    Wi-Fi ({{ formatDistance(device.connection.distance_m) }})
                   </span>
-                } @else if ($any(device.connection)?.type === 'ViaExtender') {
+                } @else if (device.connection?.type === 'ViaExtender') {
                   <span class="badge text-bg-info">
                     <i class="bi-router"></i> Via Extender
-                    @if ($any(device.connection).distance_m !== undefined) {
-                      ({{ formatDistance($any(device.connection).distance_m) }})
+                    @if (device.connection.distance_m !== undefined) {
+                      ({{ formatDistance(device.connection.distance_m) }})
                     }
                   </span>
                 } @else {
@@ -77,9 +120,21 @@
               </td>
               <td class="col-actions">
                 @if (device.uuid) {
-                  <button type="button" class="btn btn-secondary" (click)="openSettings(device)">Settings/Edit</button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="openSettings(device)"
+                  >
+                    Settings/Edit
+                  </button>
                 } @else {
-                  <button type="button" class="btn btn-primary" (click)="register(device)">Register</button>
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="register(device)"
+                  >
+                    Register
+                  </button>
                 }
               </td>
             </tr>
@@ -97,7 +152,9 @@
   <div class="drawer">
     <div class="drawer-header">
       <h2>Device Settings</h2>
-      <button type="button" class="btn-close" (click)="closeSettings()">×</button>
+      <button type="button" class="btn-close" (click)="closeSettings()">
+        ×
+      </button>
     </div>
     <div class="drawer-body">
       <div class="form-group">
@@ -110,8 +167,12 @@
         </label>
       </div>
       <div class="drawer-actions">
-        <button type="button" class="btn btn-primary" (click)="saveSettings()">Save Changes</button>
-        <button type="button" class="btn btn-danger" (click)="deleteDevice()">Delete Device</button>
+        <button type="button" class="btn btn-primary" (click)="saveSettings()">
+          Save Changes
+        </button>
+        <button type="button" class="btn btn-danger" (click)="deleteDevice()">
+          Delete Device
+        </button>
       </div>
 
       <hr />
@@ -128,13 +189,22 @@
             </tr>
           </thead>
           <tbody>
-            @for (pf of device.port_forwards; track pf.external_port + pf.protocol) {
+            @for (
+              pf of device.port_forwards;
+              track pf.external_port + pf.protocol
+            ) {
               <tr>
                 <td>{{ pf.protocol }}</td>
                 <td>{{ pf.external_port }}</td>
                 <td>{{ pf.internal_port }}</td>
                 <td>
-                  <button type="button" class="btn btn-danger btn-sm" (click)="removePortForward(pf)">Delete</button>
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    (click)="removePortForward(pf)"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             }
@@ -151,9 +221,25 @@
           <option value="UDP">UDP</option>
           <option value="Both">Both</option>
         </select>
-        <input type="number" [(ngModel)]="newPfExternalPort" placeholder="Ext Port" class="form-control" />
-        <input type="number" [(ngModel)]="newPfInternalPort" placeholder="Int Port" class="form-control" />
-        <button type="button" class="btn btn-success" (click)="addPortForward()">Add</button>
+        <input
+          type="number"
+          [(ngModel)]="newPfExternalPort"
+          placeholder="Ext Port"
+          class="form-control"
+        />
+        <input
+          type="number"
+          [(ngModel)]="newPfInternalPort"
+          placeholder="Int Port"
+          class="form-control"
+        />
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="addPortForward()"
+        >
+          Add
+        </button>
       </div>
     </div>
   </div>

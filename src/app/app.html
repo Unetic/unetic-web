@@ -38,14 +38,70 @@
         <app-extender-slave></app-extender-slave>
       } @else {
         <nav class="tabs">
-          <button type="button" class="tab" [class.active]="store.activeTab() === 'wifi'" (click)="store.activeTab.set('wifi')">Wi-Fi</button>
-          <button type="button" class="tab" [class.active]="store.activeTab() === 'wan'" (click)="store.activeTab.set('wan')">WAN</button>
-          <button type="button" class="tab" [class.active]="store.activeTab() === 'dns'" (click)="store.activeTab.set('dns')">DNS</button>
-          <button type="button" class="tab" [class.active]="store.activeTab() === 'ddns'" (click)="store.activeTab.set('ddns')">DDNS</button>
-          <button type="button" class="tab" [class.active]="store.activeTab() === 'devices'" (click)="store.activeTab.set('devices')">Devices</button>
-          <button type="button" class="tab" [class.active]="store.activeTab() === 'ports'" (click)="store.activeTab.set('ports')">Ports</button>
-          <button type="button" class="tab" [class.active]="store.activeTab() === 'system'" (click)="store.activeTab.set('system')">System</button>
-          <button type="button" class="tab" [class.active]="store.activeTab() === 'diagnostics'" (click)="store.activeTab.set('diagnostics')">Diagnostics</button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'wifi'"
+            (click)="store.activeTab.set('wifi')"
+          >
+            Wi-Fi
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'wan'"
+            (click)="store.activeTab.set('wan')"
+          >
+            WAN
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'dns'"
+            (click)="store.activeTab.set('dns')"
+          >
+            DNS
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'ddns'"
+            (click)="store.activeTab.set('ddns')"
+          >
+            DDNS
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'devices'"
+            (click)="store.activeTab.set('devices')"
+          >
+            Devices
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'ports'"
+            (click)="store.activeTab.set('ports')"
+          >
+            Ports
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'system'"
+            (click)="store.activeTab.set('system')"
+          >
+            System
+          </button>
+          <button
+            type="button"
+            class="tab"
+            [class.active]="store.activeTab() === 'diagnostics'"
+            (click)="store.activeTab.set('diagnostics')"
+          >
+            Diagnostics
+          </button>
         </nav>
 
         @if (store.activeTab() === 'wifi') {

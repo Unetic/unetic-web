@@ -57,14 +57,12 @@ describe('DevicesComponent', () => {
         mac: '00:11:22:33:44:55',
         ip: '192.168.1.50',
         hostname: 'Alice-iPhone',
-        connection_type: 'wifi',
-        connection: { type: 'Wireless', signal_pct: 80, signal_dbm: -50, distance_m: 2.5 },
+        connection: { type: 'Wireless', signal_dbm: -50, distance_m: 2.5 },
       },
       {
         mac: 'aa:bb:cc:dd:ee:ff',
         ip: '192.168.1.51',
         hostname: null,
-        connection_type: 'ethernet',
         connection: { type: 'Wired', port_id: 1 },
       },
     ];
@@ -77,7 +75,13 @@ describe('DevicesComponent', () => {
     const headers = Array.from(
       fixture.nativeElement.querySelectorAll('th'),
     ).map((th) => (th as HTMLTableCellElement).textContent?.trim());
-    expect(headers).toEqual(['Name / Hostname', 'IP', 'MAC', 'Connection', 'Actions']);
+    expect(headers).toEqual([
+      'Name / Hostname',
+      'IP',
+      'MAC',
+      'Connection',
+      'Actions',
+    ]);
 
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
     expect(rows.length).toBe(2);

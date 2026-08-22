@@ -49,13 +49,24 @@
       </label>
     }
 
-    <details class="advanced-settings" style="margin-bottom: 1rem;">
+    <details class="advanced-settings" style="margin-bottom: 1rem">
       <summary>Advanced Settings</summary>
-      <div class="note" style="margin-top: 0.5rem; font-size: 0.9em; color: #6b7280;">
-        <p><strong>Channel Selection:</strong> Fast Roaming (802.11r/k/v) and Band Steering are managed automatically.</p>
+      <div
+        class="note"
+        style="margin-top: 0.5rem; font-size: 0.9em; color: #6b7280"
+      >
+        <p>
+          <strong>Channel Selection:</strong> Fast Roaming (802.11r/k/v) and
+          Band Steering are managed automatically.
+        </p>
       </div>
-      <div style="margin-top: 1rem;">
-        <button type="button" class="btn btn-outline-primary" [disabled]="isOptimizing() || state.lifecycle !== 'ready'" (click)="optimizeMesh()">
+      <div style="margin-top: 1rem">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [disabled]="isOptimizing() || state.lifecycle !== 'ready'"
+          (click)="optimizeMesh()"
+        >
           {{ isOptimizing() ? 'Optimizing...' : 'Optimize Mesh Channels' }}
         </button>
       </div>

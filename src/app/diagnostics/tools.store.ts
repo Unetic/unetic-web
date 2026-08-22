@@ -1,5 +1,4 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { ApiEnvelope } from '../core/models';
 import { PingResult } from './diagnostics.model';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
@@ -31,26 +30,11 @@ export class ToolsStore {
     this.pingOutput.set('');
 
     try {
-      const envelope = await this.ubus.call<ApiEnvelope<PingResult | string>>(
-        'tools.ping',
-        { host: target },
-      );
-
-      if (envelope.result !== undefined) {
-        let outputText = '';
-        if (typeof envelope.result === 'string') {
-          outputText = envelope.result;
-        } else if (
-          typeof envelope.result === 'object' &&
-          envelope.result !== null
-        ) {
-          const res = envelope.result as { output?: string; stdout?: string };
-          outputText =
-            res.output ?? res.stdout ?? JSON.stringify(envelope.result);
-        }
-        this.pingOutput.set(outputText);
-        return outputText;
-      }
+      const result = await this.ubus.call<PingResult>('tools.ping', {
+        host: target,
+      });
+      this.pingOutput.set(result.output);
+      return result.output;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.error.set(message);
