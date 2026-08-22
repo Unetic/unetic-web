@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { DevicesStore } from '../devices/devices.store';
@@ -11,20 +11,21 @@ import { UbusClient } from '../core/ubus-client.service';
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [FormsModule, SparklineComponent, DecimalPipe],
+  imports: [FormsModule, SparklineComponent],
+  providers: [DecimalPipe],
   templateUrl: './devices.component.html',
   styleUrl: './devices.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DevicesComponent implements OnInit, OnDestroy {
   readonly store = inject(DevicesStore);
   readonly uneticStore = inject(UneticStore);
   readonly ubus = inject(UbusClient);
+  readonly decimalPipe = inject(DecimalPipe);
 
   selectedDevice = signal<Device | null>(null);
 
-  get pendingExtenders(): PendingExtender[] {
-    return this.uneticStore.state()?.pending_extenders || [];
-  }
+  pendingExtenders = computed(() => this.uneticStore.state()?.pending_extenders || []);
 
   async acceptExtender(mac: string) {
     try {
@@ -77,16 +78,22 @@ export class DevicesComponent implements OnInit, OnDestroy {
     this.store.stopPolling();
   }
 
+  extenders = computed(() => this.uneticStore.state()?.extenders || []);
+
   getExtenderInfo(mac: string): string {
-    const extenders = this.uneticStore.state()?.extenders || [];
-    const ext = extenders.find(e => e.mac === mac);
+    const ext = this.extenders().find(e => e.mac === mac);
     if (!ext) return mac;
     return ext.model || ext.ip;
   }
 
   isExtender(mac: string): boolean {
-    const extenders = this.uneticStore.state()?.extenders || [];
-    return extenders.some(e => e.mac === mac);
+    return this.extenders().some(e => e.mac === mac);
+  }
+
+  formatDistance(distance: number | undefined): string {
+    if (distance === undefined || distance < 0) return 'Unknown distance';
+    if (distance === 0) return '< 1m';
+    return (this.decimalPipe.transform(distance, '1.1-1') || '0') + 'm';
   }
 
   getConnectionLabel(device: Device): string {

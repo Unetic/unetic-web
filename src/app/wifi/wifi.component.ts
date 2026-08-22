@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UneticStore } from '../core/unetic-store.service';
 import { WifiStore } from '../wifi/wifi.store';
@@ -10,6 +10,7 @@ import { SystemApiService } from '../core/system-api.service';
   imports: [FormsModule],
   templateUrl: './wifi.component.html',
   styleUrl: './wifi.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WifiComponent {
   readonly store = inject(UneticStore);
@@ -29,7 +30,7 @@ export class WifiComponent {
       await this.systemApi.optimizeMesh();
       alert('Mesh optimized successfully!');
     } catch (err) {
-      alert('Mesh optimization failed.');
+      alert('Mesh optimization failed: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
       this.isOptimizing.set(false);
     }

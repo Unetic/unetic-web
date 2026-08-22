@@ -3,10 +3,10 @@
     <p class="error">{{ err }}</p>
   }
 
-  @if (pendingExtenders.length > 0) {
+  @if (pendingExtenders().length > 0) {
     <div class="pending-extenders-banner" style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
       <h3 style="margin-top: 0;">Pending Mesh Extenders</h3>
-      @for (ext of pendingExtenders; track ext.mac) {
+      @for (ext of pendingExtenders(); track ext.mac) {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
           <span>New Extender (MAC: <strong>{{ ext.mac }}</strong>) is trying to join the mesh.</span>
           <div>
@@ -62,13 +62,13 @@
               <td class="col-connection">
                 @if ($any(device.connection)?.type === 'Wireless') {
                   <span class="badge text-bg-primary">
-                    Wi-Fi ({{ $any(device.connection).distance_m | number:'1.1-1' }}m)
+                    Wi-Fi ({{ formatDistance($any(device.connection).distance_m) }})
                   </span>
                 } @else if ($any(device.connection)?.type === 'ViaExtender') {
                   <span class="badge text-bg-info">
                     <i class="bi-router"></i> Via Extender
                     @if ($any(device.connection).distance_m !== undefined) {
-                      ({{ $any(device.connection).distance_m | number:'1.1-1' }}m)
+                      ({{ formatDistance($any(device.connection).distance_m) }})
                     }
                   </span>
                 } @else {
