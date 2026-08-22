@@ -12,6 +12,7 @@ import { SystemComponent } from './system/system.component';
 import { DiagnosticsComponent } from './diagnostics/diagnostics.component';
 import { DnsComponent } from './dns/dns.component';
 import { DdnsComponent } from './ddns/ddns.component';
+import { ExtenderSlaveComponent } from './extender-slave/extender-slave.component';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ import { DdnsComponent } from './ddns/ddns.component';
     DiagnosticsComponent,
     DnsComponent,
     DdnsComponent,
+    ExtenderSlaveComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

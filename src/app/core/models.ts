@@ -42,10 +42,17 @@ export interface LastOperation extends PublicOperation {
   finished_at_ms: number;
 }
 
+export interface PendingExtender {
+  mac: string;
+  model: string;
+  pairing_key: string;
+}
+
 export interface KnownExtender {
   mac: string;
   ip: string;
   model?: string;
+  auth_token: string;
 }
 
 export interface PublicState {
@@ -86,6 +93,8 @@ export interface PublicState {
   };
   traffic?: TrafficState;
   extenders: KnownExtender[];
+  pending_extenders: PendingExtender[];
+  extender_pairing_status: string;
   extender_ports: Record<string, PhysicalPort[]>;
 }
 

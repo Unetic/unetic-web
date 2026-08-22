@@ -3,6 +3,21 @@
     <p class="error">{{ err }}</p>
   }
 
+  @if (pendingExtenders.length > 0) {
+    <div class="pending-extenders-banner" style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="margin-top: 0;">Pending Mesh Extenders</h3>
+      @for (ext of pendingExtenders; track ext.mac) {
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+          <span>New Extender (MAC: <strong>{{ ext.mac }}</strong>) is trying to join the mesh.</span>
+          <div>
+            <button type="button" class="btn btn-success" style="margin-right: 0.5rem;" (click)="acceptExtender(ext.mac)">Accept</button>
+            <button type="button" class="btn btn-danger" (click)="rejectExtender(ext.mac)">Reject</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
   @if (store.devices().length > 0) {
     <div class="table-container">
       <table class="devices-table">

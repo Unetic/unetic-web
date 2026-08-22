@@ -8,7 +8,7 @@ import { PublicState } from './core/models';
 import { WanPublicState } from './wan/wan.model';
 
 function createMockState(): PublicState {
-  return { extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
+  return { pending_extenders: [], extender_pairing_status: 'unpaired', extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -139,7 +139,7 @@ describe('App', () => {
     ]);
   });
 
-  it('hides Wi-Fi, Devices, Ports, and Diagnostics tabs in extender mode', async () => {
+  it('hides all tabs and renders extender UI in extender mode', async () => {
     mockWanStore.wan.set({
       present: true,
       proto: 'extender',
@@ -155,6 +155,7 @@ describe('App', () => {
       (btn) => btn.textContent?.trim() || '',
     );
 
-    expect(tabNames).toEqual(['WAN', 'System']);
+    expect(tabNames).toEqual([]);
+    expect(fixture.nativeElement.querySelector('app-extender-slave')).toBeTruthy();
   });
 });

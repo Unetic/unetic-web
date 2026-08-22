@@ -3,8 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { DevicesStore } from '../devices/devices.store';
 import { Device, PortForward } from './devices.model';
 import { UneticStore } from '../core/unetic-store.service';
-import { KnownExtender } from '../core/models';
+import { KnownExtender, PendingExtender } from '../core/models';
 import { SparklineComponent } from '../shared/sparkline/sparkline.component';
+import { UbusClient } from '../core/ubus-client.service';
 
 @Component({
   selector: 'app-devices',
@@ -16,8 +17,29 @@ import { SparklineComponent } from '../shared/sparkline/sparkline.component';
 export class DevicesComponent implements OnInit, OnDestroy {
   readonly store = inject(DevicesStore);
   readonly uneticStore = inject(UneticStore);
+  readonly ubus = inject(UbusClient);
 
   selectedDevice = signal<Device | null>(null);
+
+  get pendingExtenders(): PendingExtender[] {
+    return this.uneticStore.state()?.pending_extenders || [];
+  }
+
+  async acceptExtender(mac: string) {
+    try {
+      await this.ubus.call('mesh.pair_accept', { mac });
+    } catch (e) {
+      console.error('Failed to accept extender:', e);
+    }
+  }
+
+  async rejectExtender(mac: string) {
+    try {
+      await this.ubus.call('mesh.pair_reject', { mac });
+    } catch (e) {
+      console.error('Failed to reject extender:', e);
+    }
+  }
 
   getDeviceSparkline(mac: string): number[] {
     return this.uneticStore.getDeviceSparkline(mac);

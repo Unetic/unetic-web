@@ -34,111 +34,37 @@
         <button type="submit">Sign in</button>
       </form>
     } @else if (store.state(); as state) {
-      <nav class="tabs">
-        @if (wanStore.wan().proto !== 'extender') {
-          <button
-            type="button"
-            class="tab"
-            [class.active]="store.activeTab() === 'wifi'"
-            (click)="store.activeTab.set('wifi')"
-          >
-            Wi-Fi
-          </button>
-        }
-        <button
-          type="button"
-          class="tab"
-          [class.active]="store.activeTab() === 'wan'"
-          (click)="store.activeTab.set('wan')"
-        >
-          WAN
-        </button>
-        @if (wanStore.wan().proto !== 'extender') {
-          <button
-            type="button"
-            class="tab"
-            [class.active]="store.activeTab() === 'dns'"
-            (click)="store.activeTab.set('dns')"
-          >
-            DNS
-          </button>
-          <button
-            type="button"
-            class="tab"
-            [class.active]="store.activeTab() === 'ddns'"
-            (click)="store.activeTab.set('ddns')"
-          >
-            DDNS
-          </button>
-          <button
-            type="button"
-            class="tab"
-            [class.active]="store.activeTab() === 'devices'"
-            (click)="store.activeTab.set('devices')"
-          >
-            Devices
-          </button>
-          <button
-            type="button"
-            class="tab"
-            [class.active]="store.activeTab() === 'ports'"
-            (click)="store.activeTab.set('ports')"
-          >
-            Ports
-          </button>
-        }
-        <button
-          type="button"
-          class="tab"
-          [class.active]="store.activeTab() === 'system'"
-          (click)="store.activeTab.set('system')"
-        >
-          System
-        </button>
-        @if (wanStore.wan().proto !== 'extender') {
-          <button
-            type="button"
-            class="tab"
-            [class.active]="store.activeTab() === 'diagnostics'"
-            (click)="store.activeTab.set('diagnostics')"
-          >
-            Diagnostics
-          </button>
-        }
-      </nav>
+      @if (wanStore.wan().proto === 'extender') {
+        <app-extender-slave></app-extender-slave>
+      } @else {
+        <nav class="tabs">
+          <button type="button" class="tab" [class.active]="store.activeTab() === 'wifi'" (click)="store.activeTab.set('wifi')">Wi-Fi</button>
+          <button type="button" class="tab" [class.active]="store.activeTab() === 'wan'" (click)="store.activeTab.set('wan')">WAN</button>
+          <button type="button" class="tab" [class.active]="store.activeTab() === 'dns'" (click)="store.activeTab.set('dns')">DNS</button>
+          <button type="button" class="tab" [class.active]="store.activeTab() === 'ddns'" (click)="store.activeTab.set('ddns')">DDNS</button>
+          <button type="button" class="tab" [class.active]="store.activeTab() === 'devices'" (click)="store.activeTab.set('devices')">Devices</button>
+          <button type="button" class="tab" [class.active]="store.activeTab() === 'ports'" (click)="store.activeTab.set('ports')">Ports</button>
+          <button type="button" class="tab" [class.active]="store.activeTab() === 'system'" (click)="store.activeTab.set('system')">System</button>
+          <button type="button" class="tab" [class.active]="store.activeTab() === 'diagnostics'" (click)="store.activeTab.set('diagnostics')">Diagnostics</button>
+        </nav>
 
-      @if (
-        store.activeTab() === 'wifi' && wanStore.wan().proto !== 'extender'
-      ) {
-        <app-wifi></app-wifi>
-      } @else if (
-        store.activeTab() === 'wan' ||
-        (wanStore.wan().proto === 'extender' && store.activeTab() !== 'system')
-      ) {
-        <app-wan></app-wan>
-      } @else if (
-        store.activeTab() === 'dns' && wanStore.wan().proto !== 'extender'
-      ) {
-        <app-dns></app-dns>
-      } @else if (
-        store.activeTab() === 'ddns' && wanStore.wan().proto !== 'extender'
-      ) {
-        <app-ddns></app-ddns>
-      } @else if (
-        store.activeTab() === 'devices' && wanStore.wan().proto !== 'extender'
-      ) {
-        <app-devices></app-devices>
-      } @else if (
-        store.activeTab() === 'ports' && wanStore.wan().proto !== 'extender'
-      ) {
-        <app-ports></app-ports>
-      } @else if (store.activeTab() === 'system') {
-        <app-system></app-system>
-      } @else if (
-        store.activeTab() === 'diagnostics' &&
-        wanStore.wan().proto !== 'extender'
-      ) {
-        <app-diagnostics></app-diagnostics>
+        @if (store.activeTab() === 'wifi') {
+          <app-wifi></app-wifi>
+        } @else if (store.activeTab() === 'wan') {
+          <app-wan></app-wan>
+        } @else if (store.activeTab() === 'dns') {
+          <app-dns></app-dns>
+        } @else if (store.activeTab() === 'ddns') {
+          <app-ddns></app-ddns>
+        } @else if (store.activeTab() === 'devices') {
+          <app-devices></app-devices>
+        } @else if (store.activeTab() === 'ports') {
+          <app-ports></app-ports>
+        } @else if (store.activeTab() === 'system') {
+          <app-system></app-system>
+        } @else if (store.activeTab() === 'diagnostics') {
+          <app-diagnostics></app-diagnostics>
+        }
       }
 
       <div class="meta">

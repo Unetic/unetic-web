@@ -1,0 +1,13 @@
+<div class="extender-slave-card">
+  @if (pairingStatus === 'unpaired' || pairingStatus === 'pairing') {
+    <div class="status-waiting">
+      <h3>Extender Mode: Waiting for Master to accept pairing...</h3>
+      <div class="spinner"></div>
+    </div>
+  } @else if (pairingStatus === 'paired') {
+    <div class="status-paired">
+      <h3>Connected to Master. All settings are managed centrally.</h3>
+      <button type="button" class="btn btn-danger" (click)="leaveMesh()">Leave Mesh (Reset to Router)</button>
+    </div>
+  }
+</div>
