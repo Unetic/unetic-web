@@ -20,6 +20,19 @@ export class UneticStore implements OnDestroy {
     () => this.state()?.active_operation?.source === 'user',
   );
 
+  readonly traffic = computed(() => this.state()?.traffic ?? { ifaces: {}, devices: {} });
+
+  private deviceHistory = new Map<string, number[]>();
+  private ifaceHistory = new Map<string, number[]>();
+
+  getDeviceSparkline(mac: string): number[] {
+    return this.deviceHistory.get(mac) ?? [];
+  }
+
+  getIfaceSparkline(ifname: string): number[] {
+    return this.ifaceHistory.get(ifname) ?? [];
+  }
+
   currentRequestId: string | null = null;
   private pollingTimer?: number;
   private reconnectTimer?: number;
@@ -277,6 +290,34 @@ export class UneticStore implements OnDestroy {
   private applyState(state: PublicState): void {
     this.state.set(state);
     this.connected.set(true);
+
+    if (state.traffic?.devices) {
+      for (const [mac, stats] of Object.entries(state.traffic.devices)) {
+        let history = this.deviceHistory.get(mac);
+        if (!history) {
+          history = [];
+          this.deviceHistory.set(mac, history);
+        }
+        history.push(stats.rx_bps);
+        if (history.length > 60) {
+          history.shift();
+        }
+      }
+    }
+
+    if (state.traffic?.ifaces) {
+      for (const [ifname, stats] of Object.entries(state.traffic.ifaces)) {
+        let history = this.ifaceHistory.get(ifname);
+        if (!history) {
+          history = [];
+          this.ifaceHistory.set(ifname, history);
+        }
+        history.push(stats.rx_bps);
+        if (history.length > 60) {
+          history.shift();
+        }
+      }
+    }
 
     const last = state.last_user_operation;
     if (this.currentRequestId && last?.request_id === this.currentRequestId) {

@@ -86,7 +86,8 @@ describe('DevicesComponent', () => {
     const row1Cols = Array.from(rows[0].querySelectorAll('td')).map((td) =>
       (td as HTMLTableCellElement).textContent?.trim(),
     );
-    expect(row1Cols[0]).toBe('Alice-iPhone');
+    expect(row1Cols[0]).toContain('Alice-iPhone');
+    expect(row1Cols[0]).toContain('↓');
     expect(row1Cols[1]).toBe('192.168.1.50');
     expect(row1Cols[2]).toBe('00:11:22:33:44:55');
     expect(row1Cols[3]).toBe('Wi-Fi (80%)');
@@ -96,7 +97,8 @@ describe('DevicesComponent', () => {
     const row2Cols = Array.from(rows[1].querySelectorAll('td')).map((td) =>
       (td as HTMLTableCellElement).textContent?.trim(),
     );
-    expect(row2Cols[0]).toBe('Unknown Device');
+    expect(row2Cols[0]).toContain('Unknown Device');
+    expect(row2Cols[0]).toContain('↓');
     expect(row2Cols[1]).toBe('192.168.1.51');
     expect(row2Cols[2]).toBe('aa:bb:cc:dd:ee:ff');
     expect(row2Cols[3]).toBe('LAN (Port 1)');

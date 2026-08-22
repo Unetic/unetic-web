@@ -9,5 +9,6 @@ export interface PortInfo {
   type: 'LAN' | 'WAN';
   vlan: number | null;
   speed: string;
+  ifname?: string;
   connections: PortConnection[];
 }

@@ -2,18 +2,41 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DevicesStore } from '../devices/devices.store';
 import { Device, PortForward } from './devices.model';
+import { UneticStore } from '../core/unetic-store.service';
+import { SparklineComponent } from '../shared/sparkline/sparkline.component';
 
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, SparklineComponent],
   templateUrl: './devices.component.html',
   styleUrl: './devices.component.scss',
 })
 export class DevicesComponent implements OnInit, OnDestroy {
   readonly store = inject(DevicesStore);
+  readonly uneticStore = inject(UneticStore);
 
   selectedDevice = signal<Device | null>(null);
+
+  getDeviceSparkline(mac: string): number[] {
+    return this.uneticStore.getDeviceSparkline(mac);
+  }
+
+  hasSparklineData(mac: string): boolean {
+    const data = this.getDeviceSparkline(mac);
+    return data.some(val => val > 0);
+  }
+
+  getDeviceStats(mac: string) {
+    const dev = this.uneticStore.traffic().devices[mac];
+    return dev ? { rx: dev.rx_bps, tx: dev.tx_bps } : { rx: 0, tx: 0 };
+  }
+
+  formatBps(n: number): string {
+    if (!n || n < 1024) return '< 1 KB/s';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB/s';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB/s';
+  }
   
   editName = '';
   editIsStaticIp = false;

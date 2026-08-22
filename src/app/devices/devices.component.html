@@ -23,6 +23,17 @@
                   <span class="badge registered-badge" title="Registered Device">✓</span>
                 }
                 {{ device.name || device.hostname || 'Unknown Device' }}
+                
+                @if (getDeviceStats(device.mac); as stats) {
+                  <div class="device-traffic" style="font-size: 0.85em; margin-top: 4px; color: #6b7280;">
+                    ↓ {{ formatBps(stats.rx) }}  ↑ {{ formatBps(stats.tx) }}
+                  </div>
+                }
+                @if (hasSparklineData(device.mac)) {
+                  <div style="width: 100%; max-width: 120px; margin-top: 4px;">
+                    <app-sparkline [values]="getDeviceSparkline(device.mac)"></app-sparkline>
+                  </div>
+                }
               </td>
               <td class="col-ip">
                 <code>{{ device.ip }}</code>

@@ -14,6 +14,17 @@
             </span>
           </div>
           
+          @if (getPortStats(port.ifname); as stats) {
+            <div class="port-traffic" style="font-size: 0.85em; margin-bottom: 8px; color: #6b7280;">
+              ↓ {{ formatBps(stats.rx) }}  ↑ {{ formatBps(stats.tx) }}
+            </div>
+          }
+          @if (hasSparklineData(port.ifname)) {
+            <div style="width: 100%; margin-bottom: 8px; height: 20px;">
+              <app-sparkline [values]="getIfaceSparkline(port.ifname)"></app-sparkline>
+            </div>
+          }
+          
           @if (port.vlan !== null) {
             <div class="vlan">VLAN: {{ port.vlan }}</div>
           }
