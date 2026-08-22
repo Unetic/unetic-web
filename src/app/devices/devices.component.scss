@@ -72,3 +72,118 @@
     background: color-mix(in srgb, currentColor 12%, transparent);
   }
 }
+
+.offline {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+.registered-badge {
+  background-color: #28a745;
+  color: white;
+  border-radius: 50%;
+  padding: 0 4px;
+  margin-right: 5px;
+  font-size: 0.8em;
+}
+
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 400px;
+  max-width: 90vw;
+  background: white;
+  z-index: 1001;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+  
+  h2 {
+    margin: 0;
+  }
+}
+
+.drawer-body {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.drawer-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  input.form-control {
+    width: 100%;
+    padding: 0.5rem;
+  }
+}
+
+.form-group-inline {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  
+  .form-control {
+    padding: 0.5rem;
+    width: 80px;
+  }
+  
+  select.form-control {
+    width: auto;
+  }
+}
+
+.pf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  
+  th, td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}

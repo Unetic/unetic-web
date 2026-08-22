@@ -57,6 +57,14 @@
           <button
             type="button"
             class="tab"
+            [class.active]="store.activeTab() === 'dns'"
+            (click)="store.activeTab.set('dns')"
+          >
+            DNS
+          </button>
+          <button
+            type="button"
+            class="tab"
             [class.active]="store.activeTab() === 'devices'"
             (click)="store.activeTab.set('devices')"
           >
@@ -100,6 +108,10 @@
         (wanStore.wan().proto === 'extender' && store.activeTab() !== 'system')
       ) {
         <app-wan></app-wan>
+      } @else if (
+        store.activeTab() === 'dns' && wanStore.wan().proto !== 'extender'
+      ) {
+        <app-dns></app-dns>
       } @else if (
         store.activeTab() === 'devices' && wanStore.wan().proto !== 'extender'
       ) {

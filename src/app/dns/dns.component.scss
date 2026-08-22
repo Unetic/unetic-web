@@ -1,0 +1,38 @@
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.checkbox-group {
+  margin-bottom: 1rem;
+}
+
+.dhcp-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.record-form {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+
+  th, td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+.btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}

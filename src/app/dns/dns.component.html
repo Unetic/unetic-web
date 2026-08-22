@@ -1,0 +1,123 @@
+@if (store.state(); as state) {
+  <div class="form">
+    <h3>Upstream DNS</h3>
+    
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="upstreamType" [ngModel]="upstreamType()" (ngModelChange)="upstreamType.set($event)" value="isp">
+        ISP Auto
+      </label>
+      <label>
+        <input type="radio" name="upstreamType" [ngModel]="upstreamType()" (ngModelChange)="upstreamType.set($event)" value="cloudflare">
+        Cloudflare (1.1.1.1)
+      </label>
+      <label>
+        <input type="radio" name="upstreamType" [ngModel]="upstreamType()" (ngModelChange)="upstreamType.set($event)" value="google">
+        Google (8.8.8.8)
+      </label>
+      <label>
+        <input type="radio" name="upstreamType" [ngModel]="upstreamType()" (ngModelChange)="upstreamType.set($event)" value="quad9">
+        Quad9 (9.9.9.9)
+      </label>
+      <label>
+        <input type="radio" name="upstreamType" [ngModel]="upstreamType()" (ngModelChange)="upstreamType.set($event)" value="custom">
+        Custom
+      </label>
+    </div>
+
+    @if (upstreamType() === 'custom') {
+      <label>
+        Primary DNS
+        <input [ngModel]="primaryDns()" (ngModelChange)="primaryDns.set($event)" placeholder="Primary DNS IP">
+      </label>
+      <label>
+        Secondary DNS
+        <input [ngModel]="secondaryDns()" (ngModelChange)="secondaryDns.set($event)" placeholder="Secondary DNS IP">
+      </label>
+    }
+
+    <h3>Local Domain</h3>
+    <div class="checkbox-group">
+      <label>
+        <input type="checkbox" [ngModel]="localDomainEnabled()" (ngModelChange)="localDomainEnabled.set($event)">
+        Enable Local Domain
+      </label>
+    </div>
+    @if (localDomainEnabled()) {
+      <label>
+        Domain Name
+        <input [ngModel]="localDomain()" (ngModelChange)="localDomain.set($event)" placeholder="home.local">
+      </label>
+    }
+
+    <h3>DHCP Settings</h3>
+    <div class="dhcp-row">
+      <label>
+        From .
+        <input type="number" [ngModel]="dhcpStart()" (ngModelChange)="dhcpStart.set($event)">
+      </label>
+      <label>
+        Limit
+        <input type="number" [ngModel]="dhcpLimit()" (ngModelChange)="dhcpLimit.set($event)">
+      </label>
+    </div>
+    <div class="banner">
+      Range: 192.168.1.{{ dhcpStart() }} &ndash; 192.168.1.{{ dhcpStart() + dhcpLimit() - 1 }}
+    </div>
+
+    <label>
+      Lease Time
+      <select [ngModel]="dhcpLeaseHours()" (ngModelChange)="dhcpLeaseHours.set($event)">
+        <option [ngValue]="1">1h</option>
+        <option [ngValue]="6">6h</option>
+        <option [ngValue]="12">12h</option>
+        <option [ngValue]="24">24h</option>
+        <option [ngValue]="48">48h</option>
+        <option [ngValue]="168">168h (1 week)</option>
+        <option [ngValue]="0">Never expire</option>
+      </select>
+    </label>
+
+    <button type="button" (click)="saveConfig()">
+      {{ store.saving() ? 'Applying…' : 'Save Settings' }}
+    </button>
+
+    <h3>Custom DNS Records</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Hostname</th>
+          <th>IP</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (record of dnsStore.dns()?.custom_records || []; track record.id) {
+          <tr>
+            <td>{{ record.hostname }}</td>
+            <td>{{ record.ip }}</td>
+            <td>
+              <button type="button" class="btn-danger" (click)="removeRecord(record.id)">Delete</button>
+            </td>
+          </tr>
+        }
+        @if (!dnsStore.dns()?.custom_records?.length) {
+          <tr>
+            <td colspan="3">No custom records</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (showAddRecord()) {
+      <div class="record-form">
+        <input [ngModel]="newRecordHostname()" (ngModelChange)="newRecordHostname.set($event)" placeholder="Hostname">
+        <input [ngModel]="newRecordIp()" (ngModelChange)="newRecordIp.set($event)" placeholder="IP Address">
+        <button type="button" (click)="addRecord()">Save</button>
+        <button type="button" (click)="showAddRecord.set(false)">Cancel</button>
+      </div>
+    } @else {
+      <button type="button" (click)="showAddRecord.set(true)">Add Record</button>
+    }
+  </div>
+}

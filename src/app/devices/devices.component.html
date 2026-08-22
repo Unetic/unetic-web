@@ -8,17 +8,21 @@
       <table class="devices-table">
         <thead>
           <tr>
-            <th>Hostname</th>
+            <th>Name / Hostname</th>
             <th>IP</th>
             <th>MAC</th>
             <th>Connection</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @for (device of store.devices(); track device.mac) {
-            <tr>
-              <td class="col-hostname" [class.unknown]="!device.hostname">
-                {{ device.hostname || 'Unknown Device' }}
+            <tr [class.offline]="!device.connection">
+              <td class="col-hostname" [class.unknown]="!device.name && !device.hostname">
+                @if (device.uuid) {
+                  <span class="badge registered-badge" title="Registered Device">✓</span>
+                }
+                {{ device.name || device.hostname || 'Unknown Device' }}
               </td>
               <td class="col-ip">
                 <code>{{ device.ip }}</code>
@@ -27,7 +31,14 @@
                 <code>{{ device.mac }}</code>
               </td>
               <td class="col-connection">
-                <span class="badge">{{ device.connection_type }}</span>
+                <span class="badge">{{ getConnectionLabel(device) }}</span>
+              </td>
+              <td class="col-actions">
+                @if (device.uuid) {
+                  <button type="button" class="btn btn-secondary" (click)="openSettings(device)">Settings/Edit</button>
+                } @else {
+                  <button type="button" class="btn btn-primary" (click)="register(device)">Register</button>
+                }
               </td>
             </tr>
           }
@@ -38,3 +49,70 @@
     <p class="status">No connected devices found.</p>
   }
 </div>
+
+@if (selectedDevice(); as device) {
+  <div class="drawer-overlay" (click)="closeSettings()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <h2>Device Settings</h2>
+      <button type="button" class="btn-close" (click)="closeSettings()">×</button>
+    </div>
+    <div class="drawer-body">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" [(ngModel)]="editName" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="editIsStaticIp" /> Static IP
+        </label>
+      </div>
+      <div class="drawer-actions">
+        <button type="button" class="btn btn-primary" (click)="saveSettings()">Save Changes</button>
+        <button type="button" class="btn btn-danger" (click)="deleteDevice()">Delete Device</button>
+      </div>
+
+      <hr />
+
+      <h3>Port Forwards</h3>
+      @if (device.port_forwards && device.port_forwards.length > 0) {
+        <table class="pf-table">
+          <thead>
+            <tr>
+              <th>Protocol</th>
+              <th>External Port</th>
+              <th>Internal Port</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pf of device.port_forwards; track pf.external_port + pf.protocol) {
+              <tr>
+                <td>{{ pf.protocol }}</td>
+                <td>{{ pf.external_port }}</td>
+                <td>{{ pf.internal_port }}</td>
+                <td>
+                  <button type="button" class="btn btn-danger btn-sm" (click)="removePortForward(pf)">Delete</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p>No port forwards configured.</p>
+      }
+
+      <h4>Add Port Forward</h4>
+      <div class="form-group-inline">
+        <select [(ngModel)]="newPfProtocol" class="form-control">
+          <option value="TCP">TCP</option>
+          <option value="UDP">UDP</option>
+          <option value="Both">Both</option>
+        </select>
+        <input type="number" [(ngModel)]="newPfExternalPort" placeholder="Ext Port" class="form-control" />
+        <input type="number" [(ngModel)]="newPfInternalPort" placeholder="Int Port" class="form-control" />
+        <button type="button" class="btn btn-success" (click)="addPortForward()">Add</button>
+      </div>
+    </div>
+  </div>
+}

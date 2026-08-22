@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
-import { Device } from './devices.model';
+import { Device, PortForward } from './devices.model';
 import { ApiEnvelope } from '../core/models';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
@@ -51,6 +51,31 @@ export class DevicesStore implements OnDestroy {
       this.loading.set(false);
     }
     return [];
+  }
+
+  async registerDevice(mac: string, name: string): Promise<void> {
+    await this.ubus.call('devices.register', { mac, name });
+    await this.fetchDevices();
+  }
+
+  async updateDevice(uuid: string, updates: Partial<Device>): Promise<void> {
+    await this.ubus.call('devices.update', { uuid, ...updates });
+    await this.fetchDevices();
+  }
+
+  async deleteDevice(uuid: string): Promise<void> {
+    await this.ubus.call('devices.delete', { uuid });
+    await this.fetchDevices();
+  }
+
+  async addPortForward(uuid: string, port_forward: PortForward): Promise<void> {
+    await this.ubus.call('devices.add_port_forward', { uuid, port_forward });
+    await this.fetchDevices();
+  }
+
+  async removePortForward(uuid: string, port_forward: PortForward): Promise<void> {
+    await this.ubus.call('devices.remove_port_forward', { uuid, port_forward });
+    await this.fetchDevices();
   }
 
   startPolling(intervalMs = 5000): void {

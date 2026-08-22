@@ -9,7 +9,7 @@ export class UneticStore implements OnDestroy {
   readonly state = signal<PublicState | null>(null);
   readonly systemInfo = signal<SystemInfo | null>(null);
   readonly activeTab = signal<
-    'wifi' | 'wan' | 'devices' | 'ports' | 'system' | 'diagnostics'
+    'wifi' | 'wan' | 'devices' | 'ports' | 'system' | 'diagnostics' | 'dns'
   >('wifi');
 
   readonly connected = signal(false);

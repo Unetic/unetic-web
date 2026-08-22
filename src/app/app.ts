@@ -10,6 +10,7 @@ import { DevicesComponent } from './devices/devices.component';
 import { PortsComponent } from './ports/ports.component';
 import { SystemComponent } from './system/system.component';
 import { DiagnosticsComponent } from './diagnostics/diagnostics.component';
+import { DnsComponent } from './dns/dns.component';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ import { DiagnosticsComponent } from './diagnostics/diagnostics.component';
     PortsComponent,
     SystemComponent,
     DiagnosticsComponent,
+    DnsComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
