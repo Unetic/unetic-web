@@ -11,3 +11,8 @@ export interface SetWifiConfigRequest {
   expected_revision: number;
   request_id: string;
 }
+
+export enum WifiError {
+  Ok = 0,
+  InvalidConfiguration = 1,
+}

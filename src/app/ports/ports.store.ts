@@ -1,23 +1,19 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
-import { Device } from './devices.model';
+import { PortInfo } from './ports.model';
 import { ApiEnvelope } from '../core/models';
 import { UbusClient } from '../core/ubus-client.service';
-import { UneticStore } from '../core/unetic-store.service';
 
 @Injectable({ providedIn: 'root' })
-export class DevicesStore implements OnDestroy {
-  readonly devices = signal<Device[]>([]);
+export class PortsStore implements OnDestroy {
+  readonly ports = signal<PortInfo[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
 
   private pollingTimer?: number;
 
-  constructor(
-    private readonly ubus: UbusClient,
-    private readonly uneticStore: UneticStore,
-  ) {}
+  constructor(private readonly ubus: UbusClient) {}
 
-  async fetchDevices(): Promise<Device[]> {
+  async fetchPorts(): Promise<PortInfo[]> {
     if (!this.ubus.authenticated) {
       return [];
     }
@@ -25,22 +21,22 @@ export class DevicesStore implements OnDestroy {
     this.loading.set(true);
     try {
       const envelope = await this.ubus.call<
-        ApiEnvelope<Device[] | { devices: Device[] }>
-      >('devices.list', {});
+        ApiEnvelope<PortInfo[] | { ports: PortInfo[] }>
+      >('ports.list', {});
 
       if (envelope.result !== undefined) {
-        let list: Device[] = [];
+        let list: PortInfo[] = [];
         if (Array.isArray(envelope.result)) {
           list = envelope.result;
         } else if (
           typeof envelope.result === 'object' &&
           envelope.result !== null &&
-          'devices' in envelope.result &&
-          Array.isArray(envelope.result.devices)
+          'ports' in envelope.result &&
+          Array.isArray(envelope.result.ports)
         ) {
-          list = envelope.result.devices;
+          list = envelope.result.ports;
         }
-        this.devices.set(list);
+        this.ports.set(list);
         this.error.set(null);
         return list;
       }
@@ -55,9 +51,9 @@ export class DevicesStore implements OnDestroy {
 
   startPolling(intervalMs = 5000): void {
     this.stopPolling();
-    void this.fetchDevices();
+    void this.fetchPorts();
     this.pollingTimer = window.setInterval(() => {
-      void this.fetchDevices();
+      void this.fetchPorts();
     }, intervalMs);
   }
 

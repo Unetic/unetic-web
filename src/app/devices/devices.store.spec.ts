@@ -146,23 +146,11 @@ describe('DevicesStore', () => {
   });
 
   it('handles domain error in envelope', async () => {
-    const mockEnvelope = {
-      
-      ok: false,
-      error: {
-        code: 'InternalError',
-        message: 'Failed to query device list',
-        stage: 'Execute',
-        retryable: true,
-        details: null,
-      },
-      state: createMockState(),
-    };
-    mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+    mockUbus.call.mockRejectedValueOnce(new Error('API Error 1'));
 
     await store.fetchDevices();
 
-    expect(store.error()).toBe('Failed to query device list');
+    expect(store.error()).toBe('API Error 1');
     expect(store.devices()).toEqual([]);
   });
 

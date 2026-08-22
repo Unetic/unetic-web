@@ -65,10 +65,10 @@
           <button
             type="button"
             class="tab"
-            [class.active]="store.activeTab() === 'switch'"
-            (click)="store.activeTab.set('switch')"
+            [class.active]="store.activeTab() === 'ports'"
+            (click)="store.activeTab.set('ports')"
           >
-            Switch
+            Ports
           </button>
         }
         <button
@@ -105,9 +105,9 @@
       ) {
         <app-devices></app-devices>
       } @else if (
-        store.activeTab() === 'switch' && wanStore.wan().proto !== 'extender'
+        store.activeTab() === 'ports' && wanStore.wan().proto !== 'extender'
       ) {
-        <app-switch></app-switch>
+        <app-ports></app-ports>
       } @else if (store.activeTab() === 'system') {
         <app-system></app-system>
       } @else if (

@@ -53,7 +53,7 @@ export class WifiStore {
         'wifi.set_config',
         payload,
       );
-      if (!envelope.ok || envelope.result?.noop) {
+      if (envelope.result?.noop) {
         this.uneticStore.currentRequestId = null;
         const currentState = this.uneticStore.state();
         if (currentState) {

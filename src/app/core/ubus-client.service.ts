@@ -50,11 +50,23 @@ export class UbusClient {
     if (!this.sid) {
       throw new Error('Not authenticated');
     }
-    return this.rpc<T>(this.sid, 'unetic', method, params);
+    const payload = {
+      ...params,
+      idempotence_token: crypto.randomUUID(),
+    };
+    const response = await this.rpc<T>(this.sid, 'unetic', method, payload);
+    if (response && typeof response === 'object' && 'error' in response) {
+      const err = (response as any).error;
+      if (typeof err === 'number' && err !== 0) {
+        throw new Error(`API Error ${err}`);
+      }
+    }
+    return response;
   }
 
   async subscribe(
     onState: (state: unknown) => void,
+    onPatch: (patch: unknown) => void,
     onDisconnect: () => void,
   ): Promise<void> {
     if (!this.sid) {
@@ -82,13 +94,14 @@ export class UbusClient {
       throw new Error(`Subscription failed: HTTP ${response.status}`);
     }
 
-    void this.readSubscription(response.body, abort, onState, onDisconnect);
+    void this.readSubscription(response.body, abort, onState, onPatch, onDisconnect);
   }
 
   private async readSubscription(
     body: ReadableStream<Uint8Array>,
     abort: AbortController,
     onState: (state: unknown) => void,
+    onPatch: (patch: unknown) => void,
     onDisconnect: () => void,
   ): Promise<void> {
     const reader = body.getReader();
@@ -103,7 +116,7 @@ export class UbusClient {
         }
         buffer += decoder.decode(value, { stream: true });
         buffer = buffer.replace(/\r\n/g, '\n');
-        buffer = this.consumeSse(buffer, onState);
+        buffer = this.consumeSse(buffer, onState, onPatch);
       }
       if (!abort.signal.aborted) {
         onDisconnect();
@@ -120,6 +133,7 @@ export class UbusClient {
   private consumeSse(
     buffer: string,
     onState: (state: unknown) => void,
+    onPatch: (patch: unknown) => void,
   ): string {
     let boundary = buffer.indexOf('\n\n');
     while (boundary >= 0) {
@@ -143,6 +157,10 @@ export class UbusClient {
         } catch {
           // A malformed notification is ignored; the polling/resync path remains authoritative.
         }
+      } else if (eventName === 'state.patched' && data.length) {
+        try {
+          onPatch(JSON.parse(data.join('\n')));
+        } catch {}
       }
 
       boundary = buffer.indexOf('\n\n');

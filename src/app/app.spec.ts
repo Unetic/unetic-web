@@ -131,13 +131,13 @@ describe('App', () => {
       'Wi-Fi',
       'WAN',
       'Devices',
-      'Switch',
+      'Ports',
       'System',
       'Diagnostics',
     ]);
   });
 
-  it('hides Wi-Fi, Devices, Switch, and Diagnostics tabs in extender mode', async () => {
+  it('hides Wi-Fi, Devices, Ports, and Diagnostics tabs in extender mode', async () => {
     mockWanStore.wan.set({
       present: true,
       proto: 'extender',

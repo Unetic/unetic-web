@@ -1,0 +1,43 @@
+<section class="ports-container">
+  @if (store.loading() && !store.ports().length) {
+    <p class="status">Loading ports…</p>
+  } @else if (store.error()) {
+    <p class="error">Error loading ports: {{ store.error() }}</p>
+  } @else {
+    <div class="ports-list">
+      @for (port of numberedPorts(); track port.id) {
+        <div class="port-card">
+          <div class="port-header">
+            <h3>{{ port.displayName }}</h3>
+            <span class="speed" [class.unplugged]="port.isUnplugged">
+              {{ port.displaySpeed }}
+            </span>
+          </div>
+          
+          @if (port.vlan !== null) {
+            <div class="vlan">VLAN: {{ port.vlan }}</div>
+          }
+
+          @if (port.connections && port.connections.length > 0) {
+            <div class="connections">
+              <h4>Connections</h4>
+              <ul>
+                @for (conn of port.connections; track conn.mac) {
+                  <li>
+                    <div class="conn-mac">{{ conn.mac }}</div>
+                    @if (conn.ip) {
+                      <div class="conn-ip">{{ conn.ip }}</div>
+                    }
+                    @if (conn.hostname) {
+                      <div class="conn-hostname">{{ conn.hostname }}</div>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

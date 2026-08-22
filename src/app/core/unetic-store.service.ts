@@ -2,16 +2,14 @@ import { Injectable, OnDestroy, computed, signal } from '@angular/core';
 
 import { SystemInfo } from '../system/system.model';
 import { ApiEnvelope, PublicState } from '../core/models';
-import { SwitchInfo } from '../switch/switch.model';
 import { UbusClient } from '../core/ubus-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class UneticStore implements OnDestroy {
   readonly state = signal<PublicState | null>(null);
-  readonly switchInfo = signal<SwitchInfo | null>(null);
   readonly systemInfo = signal<SystemInfo | null>(null);
   readonly activeTab = signal<
-    'wifi' | 'wan' | 'devices' | 'switch' | 'system' | 'diagnostics'
+    'wifi' | 'wan' | 'devices' | 'ports' | 'system' | 'diagnostics'
   >('wifi');
 
   readonly connected = signal(false);
@@ -25,9 +23,12 @@ export class UneticStore implements OnDestroy {
   currentRequestId: string | null = null;
   private pollingTimer?: number;
   private reconnectTimer?: number;
+  private subscriptionId: string | null = null;
+  private continueTimer?: number;
 
   constructor(private readonly ubus: UbusClient) {
     this.loginRequired.set(!ubus.authenticated);
+    window.addEventListener('beforeunload', () => this.cancelSubscription());
   }
 
   ngOnDestroy(): void {
@@ -39,6 +40,39 @@ export class UneticStore implements OnDestroy {
       window.clearTimeout(this.reconnectTimer);
       this.reconnectTimer = undefined;
     }
+    if (this.continueTimer !== undefined) {
+      window.clearInterval(this.continueTimer);
+      this.continueTimer = undefined;
+    }
+    this.cancelSubscription();
+  }
+
+  private cancelSubscription(): void {
+    if (this.subscriptionId) {
+      void this.ubus.call('state.subscribe.cancel', { subscription_id: this.subscriptionId }).catch(() => {});
+      this.subscriptionId = null;
+    }
+  }
+
+  private mergePatch(current: any, patch: any): any {
+    if (patch === null) {
+      return null;
+    }
+    if (typeof patch !== 'object' || Array.isArray(patch)) {
+      return patch;
+    }
+    if (typeof current !== 'object' || current === null || Array.isArray(current)) {
+      current = {};
+    }
+    const result = { ...current };
+    for (const key of Object.keys(patch)) {
+      if (patch[key] === null) {
+        delete result[key];
+      } else {
+        result[key] = this.mergePatch(result[key], patch[key]);
+      }
+    }
+    return result;
   }
 
   async start(): Promise<void> {
@@ -68,29 +102,13 @@ export class UneticStore implements OnDestroy {
     await this.simpleMutation('maintenance.exit');
   }
 
-  async fetchSwitchInfo(): Promise<SwitchInfo | null> {
-    try {
-      const envelope = await this.ubus.call<ApiEnvelope<SwitchInfo>>(
-        'switch.get',
-        {},
-      );
-      if (envelope.ok && envelope.result) {
-        this.switchInfo.set(envelope.result);
-        return envelope.result;
-      }
-    } catch {
-      // Switch info is optional if device has no switch
-    }
-    return null;
-  }
-
   async fetchSystemInfo(): Promise<SystemInfo | null> {
     try {
       const envelope = await this.ubus.call<ApiEnvelope<SystemInfo>>(
         'system.info',
         {},
       );
-      if (envelope.ok && envelope.result) {
+      if (envelope.result) {
         this.systemInfo.set(envelope.result);
         return envelope.result;
       }
@@ -120,11 +138,31 @@ export class UneticStore implements OnDestroy {
     }
   }
 
+  private isConnecting = false;
+
   private async connect(): Promise<void> {
-    window.clearTimeout(this.reconnectTimer);
+    if (this.isConnecting) return;
+    this.isConnecting = true;
+    
     try {
+      window.clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = undefined;
+      window.clearInterval(this.continueTimer);
+      this.continueTimer = undefined;
+      const subRes = await this.ubus.call<{ subscription_id: string }>(
+        'state.subscribe.create',
+        { ttl_mins: 5 }
+      );
+      this.subscriptionId = subRes.subscription_id;
+      this.continueTimer = window.setInterval(() => {
+        if (this.subscriptionId) {
+          void this.ubus.call('state.subscribe.continue', { subscription_id: this.subscriptionId }).catch(() => {});
+        }
+      }, 4 * 60 * 1000);
+
       await this.ubus.subscribe(
         (value) => this.acceptIncomingState(value),
+        (patch) => this.applyPatch(patch),
         () => {
           this.connected.set(false);
           this.scheduleReconnect();
@@ -140,22 +178,22 @@ export class UneticStore implements OnDestroy {
         this.message(error).includes('Not authenticated')
       ) {
         window.clearInterval(this.pollingTimer);
+        this.pollingTimer = undefined;
         this.loginRequired.set(true);
       } else {
         this.scheduleReconnect();
       }
+    } finally {
+      this.isConnecting = false;
     }
   }
 
   private async refresh(): Promise<void> {
     const state = await this.ubus.call<PublicState>(
-      'state',
+      'state.get',
       {},
     );
     this.applySnapshot(state);
-    if (!this.switchInfo()) {
-      void this.fetchSwitchInfo();
-    }
     if (!this.systemInfo()) {
       void this.fetchSystemInfo();
     }
@@ -168,6 +206,7 @@ export class UneticStore implements OnDestroy {
         this.connected.set(false);
         if (!this.ubus.authenticated) {
           window.clearInterval(this.pollingTimer);
+          this.pollingTimer = undefined;
           this.loginRequired.set(true);
           return;
         }
@@ -209,6 +248,30 @@ export class UneticStore implements OnDestroy {
       return;
     }
     this.applyState(state);
+  }
+
+  private applyPatch(patch: any): void {
+    const current = this.state();
+    if (!current) {
+      void this.refresh();
+      return;
+    }
+    if (patch.boot_id !== undefined && current.boot_id !== patch.boot_id) {
+      void this.refresh();
+      return;
+    }
+    if (patch.event_seq !== undefined) {
+      if (patch.event_seq > current.event_seq + 1) {
+        void this.refresh();
+        return;
+      }
+      if (patch.event_seq <= current.event_seq) {
+        return;
+      }
+    }
+    
+    const nextState = this.mergePatch(current, patch);
+    this.applyState(nextState);
   }
 
   private applyState(state: PublicState): void {

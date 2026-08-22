@@ -127,23 +127,11 @@ describe('ToolsStore', () => {
 
   it('ping handles domain error in envelope', async () => {
     store.targetHost.set('invalid');
-    const mockEnvelope = {
-      
-      ok: false,
-      error: {
-        code: 'InvalidArgument',
-        message: 'Invalid hostname or IP address',
-        stage: 'Validate',
-        retryable: false,
-        details: null,
-      },
-      state: createMockState(),
-    };
-    mockUbus.call.mockResolvedValueOnce(mockEnvelope);
+    mockUbus.call.mockRejectedValueOnce(new Error('API Error 2'));
 
     await store.ping();
 
-    expect(store.error()).toBe('Invalid hostname or IP address');
+    expect(store.error()).toBe('API Error 2');
     expect(store.pingOutput()).toBe('');
   });
 

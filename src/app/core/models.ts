@@ -75,9 +75,10 @@ export interface PublicState {
 }
 
 export interface ApiEnvelope<T> {
-  ok: boolean;
+  idempotence_token: string;
+  event_seq: number;
+  error: number; // 0 = ok
   result?: T;
-  error?: DomainError;
 }
 
 export interface OperationAccepted {

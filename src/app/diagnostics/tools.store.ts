@@ -36,7 +36,7 @@ export class ToolsStore {
         { host: target },
       );
 
-      if (envelope.ok && envelope.result !== undefined) {
+      if (envelope.result !== undefined) {
         let outputText = '';
         if (typeof envelope.result === 'string') {
           outputText = envelope.result;
@@ -50,8 +50,6 @@ export class ToolsStore {
         }
         this.pingOutput.set(outputText);
         return outputText;
-      } else if (envelope.error) {
-        this.error.set(envelope.error.message);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
