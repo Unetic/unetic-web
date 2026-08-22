@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DevicesStore } from '../devices/devices.store';
 import { Device, PortForward } from './devices.model';
 import { UneticStore } from '../core/unetic-store.service';
+import { KnownExtender } from '../core/models';
 import { SparklineComponent } from '../shared/sparkline/sparkline.component';
 
 @Component({
@@ -53,15 +54,28 @@ export class DevicesComponent implements OnInit, OnDestroy {
     this.store.stopPolling();
   }
 
+  getExtenderInfo(mac: string): string {
+    const extenders = this.uneticStore.state()?.extenders || [];
+    const ext = extenders.find(e => e.mac === mac);
+    if (!ext) return mac;
+    return ext.model || ext.ip;
+  }
+
+  isExtender(mac: string): boolean {
+    const extenders = this.uneticStore.state()?.extenders || [];
+    return extenders.some(e => e.mac === mac);
+  }
+
   getConnectionLabel(device: Device): string {
-    if (!device.connection) {
+    if (!device.connection || (device.connection as any).type === 'Unknown') {
       return 'Offline';
     }
-    if (device.connection_type.toUpperCase() === 'LAN' || device.connection.port_id !== undefined) {
-      return `LAN (Port ${device.connection.port_id})`;
+    const conn = device.connection as any;
+    if (conn.type === 'Wired' || conn.port_id !== undefined) {
+      return `LAN (Port ${conn.port_id})`;
     }
-    if (device.connection_type.toUpperCase() === 'WIFI' || device.connection.signal_pct !== undefined) {
-      return `Wi-Fi (${device.connection.signal_pct}%)`;
+    if (conn.type === 'Wireless' || conn.signal_pct !== undefined) {
+      return `Wi-Fi (${conn.signal_pct}%)`;
     }
     return device.connection_type;
   }

@@ -58,14 +58,14 @@ describe('DevicesComponent', () => {
         ip: '192.168.1.50',
         hostname: 'Alice-iPhone',
         connection_type: 'wifi',
-        connection: { signal_pct: 80 },
+        connection: { type: 'Wireless', signal_pct: 80 },
       },
       {
         mac: 'aa:bb:cc:dd:ee:ff',
         ip: '192.168.1.51',
         hostname: null,
         connection_type: 'ethernet',
-        connection: { port_id: 1 },
+        connection: { type: 'Wired', port_id: 1 },
       },
     ];
     mockDevicesStore.devices.set(devicesList);

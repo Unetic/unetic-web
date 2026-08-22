@@ -4,10 +4,11 @@ export interface PortForward {
   internal_port: number;
 }
 
-export interface DeviceConnection {
-  port_id?: number;
-  signal_pct?: number;
-}
+export type DeviceConnection = 
+  | { type: 'Wired'; port_id: number }
+  | { type: 'Wireless'; signal_pct: number }
+  | { type: 'ViaExtender'; extender_mac: string; signal_pct?: number }
+  | { type: 'Unknown' };
 
 export interface Device {
   mac: string;

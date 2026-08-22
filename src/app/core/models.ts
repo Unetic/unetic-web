@@ -41,6 +41,12 @@ export interface LastOperation extends PublicOperation {
   finished_at_ms: number;
 }
 
+export interface KnownExtender {
+  mac: string;
+  ip: string;
+  model?: string;
+}
+
 export interface PublicState {
   core_version: string;
   boot_id: string;
@@ -78,6 +84,7 @@ export interface PublicState {
     wan: string;
   };
   traffic?: TrafficState;
+  extenders: KnownExtender[];
 }
 
 export interface IfaceStats { rx_bps: number; tx_bps: number; }

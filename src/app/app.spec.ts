@@ -8,7 +8,7 @@ import { PublicState } from './core/models';
 import { WanPublicState } from './wan/wan.model';
 
 function createMockState(): PublicState {
-  return { dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
+  return { extenders: [], dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
     core_version: '1.0.0',
     boot_id: 'boot-123',
     event_seq: 1,
@@ -131,6 +131,7 @@ describe('App', () => {
       'Wi-Fi',
       'WAN',
       'DNS',
+      'DDNS',
       'Devices',
       'Ports',
       'System',

@@ -23,6 +23,9 @@
                   <span class="badge registered-badge" title="Registered Device">✓</span>
                 }
                 {{ device.name || device.hostname || 'Unknown Device' }}
+                @if (isExtender(device.mac)) {
+                  <span class="badge badge-info ms-2">Mesh Extender</span>
+                }
                 
                 @if (getDeviceStats(device.mac); as stats) {
                   <div class="device-traffic" style="font-size: 0.85em; margin-top: 4px; color: #6b7280;">
@@ -42,7 +45,13 @@
                 <code>{{ device.mac }}</code>
               </td>
               <td class="col-connection">
-                <span class="badge">{{ getConnectionLabel(device) }}</span>
+                @if ($any(device.connection)?.type === 'ViaExtender') {
+                  <span class="badge">
+                    <i class="bi-router"></i> Via Extender {{ getExtenderInfo($any(device.connection).extender_mac) }}
+                  </span>
+                } @else {
+                  <span class="badge">{{ getConnectionLabel(device) }}</span>
+                }
               </td>
               <td class="col-actions">
                 @if (device.uuid) {
