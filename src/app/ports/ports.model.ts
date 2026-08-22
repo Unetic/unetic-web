@@ -12,3 +12,5 @@ export interface PortInfo {
   ifname?: string;
   connections: PortConnection[];
 }
+
+export type PhysicalPort = PortInfo;

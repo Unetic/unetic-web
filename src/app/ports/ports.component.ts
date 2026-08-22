@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValuePipe } from '@angular/common';
 import { PortsStore } from './ports.store';
 import { PortInfo } from './ports.model';
 import { UneticStore } from '../core/unetic-store.service';
@@ -8,7 +8,7 @@ import { SparklineComponent } from '../shared/sparkline/sparkline.component';
 @Component({
   selector: 'app-ports',
   standalone: true,
-  imports: [CommonModule, SparklineComponent],
+  imports: [CommonModule, SparklineComponent, KeyValuePipe],
   templateUrl: './ports.component.html',
   styleUrl: './ports.component.scss',
 })
@@ -34,6 +34,8 @@ export class PortsComponent implements OnInit, OnDestroy {
       };
     });
   });
+
+  readonly extenderPorts = computed(() => this.uneticStore.state()?.extender_ports ?? {});
 
   constructor(
     public readonly store: PortsStore,
@@ -68,5 +70,27 @@ export class PortsComponent implements OnInit, OnDestroy {
     if (!n || n < 1024) return '< 1 KB/s';
     if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB/s';
     return (n / (1024 * 1024)).toFixed(1) + ' MB/s';
+  }
+
+  formatPorts(ports: PortInfo[]) {
+    let lanCount = 1;
+    let wanCount = 1;
+    const sortedPorts = [...ports].sort((a, b) => a.id - b.id);
+    return sortedPorts.map((port) => {
+      let displayName = '';
+      if (port.type === 'LAN') {
+        displayName = `LAN ${lanCount++}`;
+      } else if (port.type === 'WAN') {
+        displayName = `WAN ${wanCount++}`;
+      } else {
+        displayName = port.type;
+      }
+      return {
+        ...port,
+        displayName,
+        displaySpeed: port.speed === '0' ? 'Unplugged' : port.speed.replace(/_/g, ' '),
+        isUnplugged: port.speed === '0'
+      };
+    });
   }
 }

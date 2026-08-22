@@ -1,6 +1,7 @@
 import { WanPublicState, SetWanRequest } from '../wan/wan.model';
 import { DnsConfig } from '../dns/dns.model';
 import { DdnsConfig, DdnsStatus } from '../ddns/ddns.model';
+import { PhysicalPort } from '../ports/ports.model';
 
 export type Lifecycle =
   'booting' | 'ready' | 'maintenance' | 'degraded' | 'needs_setup';
@@ -85,6 +86,7 @@ export interface PublicState {
   };
   traffic?: TrafficState;
   extenders: KnownExtender[];
+  extender_ports: Record<string, PhysicalPort[]>;
 }
 
 export interface IfaceStats { rx_bps: number; tx_bps: number; }

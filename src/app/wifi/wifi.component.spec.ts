@@ -6,7 +6,7 @@ import { UneticStore } from '../core/unetic-store.service';
 import { PublicState } from '../core/models';
 
 function createMockState(overrides?: Partial<PublicState>): PublicState {
-  return { extenders: [], dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
+  return { extenders: [], extender_ports: {}, dns: { upstream: [], local_domain: null, dhcp_start: 100, dhcp_limit: 150, dhcp_lease_hours: 24, custom_records: [] },
     
     core_version: '1.0.0',
     boot_id: 'boot-123',

@@ -49,6 +49,13 @@
       </label>
     }
 
+    <details class="advanced-settings" style="margin-bottom: 1rem;">
+      <summary>Advanced Settings</summary>
+      <div class="note" style="margin-top: 0.5rem; font-size: 0.9em; color: #6b7280;">
+        <p><strong>Channel Selection:</strong> Fast Roaming (802.11r/k/v) and Band Steering are managed automatically.</p>
+      </div>
+    </details>
+
     <button type="button" [disabled]="!wifi.canSave()" (click)="save()">
       {{ store.saving() ? 'Applying…' : 'Save Wi-Fi' }}
     </button>
