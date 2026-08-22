@@ -28,6 +28,9 @@ export class WanStore {
   readonly draftWanServiceName = signal('');
   readonly draftWanMac = signal('');
   readonly draftWanMtu = signal<number | null>(null);
+  readonly draftWanQosEnabled = signal(false);
+  readonly draftWanQosDownloadMbps = signal<number | null>(null);
+  readonly draftWanQosUploadMbps = signal<number | null>(null);
 
   readonly canSaveWan = computed(() => {
     const state = this.uneticStore.state();
@@ -49,6 +52,13 @@ export class WanStore {
     }
     if (proto === 'pppoe') {
       return this.draftWanUsername().trim().length > 0;
+    }
+    if (proto !== 'extender' && this.draftWanQosEnabled()) {
+      const dl = this.draftWanQosDownloadMbps();
+      const ul = this.draftWanQosUploadMbps();
+      if ((dl === null || dl <= 0) && (ul === null || ul <= 0)) {
+        return false;
+      }
     }
     return true;
   });
@@ -95,6 +105,22 @@ export class WanStore {
               username: this.draftWanUsername().trim(),
               password: this.draftWanPassword() || null,
               service_name: this.draftWanServiceName().trim() || null,
+            }
+          : null,
+      qos:
+        proto !== 'extender' && this.draftWanQosEnabled()
+          ? {
+              enabled: true,
+              download_kbps:
+                this.draftWanQosDownloadMbps() !== null &&
+                this.draftWanQosDownloadMbps()! > 0
+                  ? Math.round(this.draftWanQosDownloadMbps()! * 1000)
+                  : null,
+              upload_kbps:
+                this.draftWanQosUploadMbps() !== null &&
+                this.draftWanQosUploadMbps()! > 0
+                  ? Math.round(this.draftWanQosUploadMbps()! * 1000)
+                  : null,
             }
           : null,
     };

@@ -126,6 +126,49 @@
           placeholder="1500"
         />
       </label>
+
+      <div class="qos-card">
+        <label class="checkbox-container">
+          <input
+            type="checkbox"
+            [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+            [ngModel]="wan.draftWanQosEnabled()"
+            (ngModelChange)="wan.draftWanQosEnabled.set($event)"
+          />
+          <span>Enable Traffic Shaping (QoS / SQM)</span>
+        </label>
+        <span class="hint">
+          Cake / FQ-CoDel Smart Queue Management on WAN uplink (Controller only).
+        </span>
+
+        @if (wan.draftWanQosEnabled()) {
+          <div class="qos-fields">
+            <label>
+              Download Speed (Mbps)
+              <input
+                type="number"
+                min="1"
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="wan.draftWanQosDownloadMbps()"
+                (ngModelChange)="wan.draftWanQosDownloadMbps.set($event)"
+                placeholder="100"
+              />
+            </label>
+
+            <label>
+              Upload Speed (Mbps)
+              <input
+                type="number"
+                min="1"
+                [disabled]="state.lifecycle !== 'ready' || !!state.active_operation"
+                [ngModel]="wan.draftWanQosUploadMbps()"
+                (ngModelChange)="wan.draftWanQosUploadMbps.set($event)"
+                placeholder="20"
+              />
+            </label>
+          </div>
+        }
+      </div>
     }
 
     <button type="button" [disabled]="!wan.canSaveWan()" (click)="saveWan()">

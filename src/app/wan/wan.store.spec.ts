@@ -190,8 +190,38 @@ describe('WanStore', () => {
           wan: expect.objectContaining({
             present: true,
             proto: 'extender',
+            qos: null,
           }),
           expected_revision: 3,
+        }),
+      );
+    });
+
+    it('calls wan.set with QoS enabled for master', async () => {
+      store.draftWanProto.set('dhcp');
+      store.draftWanQosEnabled.set(true);
+      store.draftWanQosDownloadMbps.set(100);
+      store.draftWanQosUploadMbps.set(20);
+      mockUbus.call.mockResolvedValueOnce({
+        operation_id: 'op-qos',
+        status: 'accepted',
+        noop: false,
+      });
+
+      await store.saveWan();
+
+      expect(mockUbus.call).toHaveBeenCalledWith(
+        'wan.set',
+        expect.objectContaining({
+          wan: expect.objectContaining({
+            present: true,
+            proto: 'dhcp',
+            qos: {
+              enabled: true,
+              download_kbps: 100000,
+              upload_kbps: 20000,
+            },
+          }),
         }),
       );
     });

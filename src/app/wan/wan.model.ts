@@ -16,6 +16,12 @@ export interface WanPppoeConfig {
   service_name?: string | null;
 }
 
+export interface WanQos {
+  enabled: boolean;
+  download_kbps?: number | null;
+  upload_kbps?: number | null;
+}
+
 export interface WanDesired {
   present: boolean;
   device?: string | null;
@@ -25,6 +31,7 @@ export interface WanDesired {
   custom_dns?: string[];
   static_config?: WanStaticConfig | null;
   pppoe_config?: WanPppoeConfig | null;
+  qos?: WanQos | null;
 }
 
 export interface WanPublicState {
@@ -39,6 +46,7 @@ export interface WanPublicState {
   mac_address?: string | null;
   uptime_secs: number;
   error_reason?: string | null;
+  qos?: WanQos | null;
 }
 
 export interface SetWanRequest {

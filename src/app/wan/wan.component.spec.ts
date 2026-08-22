@@ -70,6 +70,9 @@ describe('WanComponent', () => {
     draftWanServiceName: ReturnType<typeof signal<string>>;
     draftWanMac: ReturnType<typeof signal<string>>;
     draftWanMtu: ReturnType<typeof signal<number | null>>;
+    draftWanQosEnabled: ReturnType<typeof signal<boolean>>;
+    draftWanQosDownloadMbps: ReturnType<typeof signal<number | null>>;
+    draftWanQosUploadMbps: ReturnType<typeof signal<number | null>>;
     canSaveWan: ReturnType<typeof signal<boolean>>;
     saveWan: ReturnType<typeof vi.fn>;
   };
@@ -90,6 +93,9 @@ describe('WanComponent', () => {
       draftWanServiceName: signal(''),
       draftWanMac: signal(''),
       draftWanMtu: signal<number | null>(null),
+      draftWanQosEnabled: signal<boolean>(false),
+      draftWanQosDownloadMbps: signal<number | null>(null),
+      draftWanQosUploadMbps: signal<number | null>(null),
       canSaveWan: signal(true),
       saveWan: vi.fn(),
     };
@@ -171,5 +177,19 @@ describe('WanComponent', () => {
     button.click();
 
     expect(mockWanStore.saveWan).toHaveBeenCalled();
+  });
+
+  it('renders QoS controls on master and toggles bandwidth fields', () => {
+    mockWanStore.draftWanProto.set('dhcp');
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).toContain('Enable Traffic Shaping (QoS / SQM)');
+
+    mockWanStore.draftWanQosEnabled.set(true);
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Download Speed (Mbps)');
+    expect(root.textContent).toContain('Upload Speed (Mbps)');
   });
 });
