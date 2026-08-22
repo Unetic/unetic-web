@@ -1,5 +1,6 @@
 import { WanPublicState, SetWanRequest } from '../wan/wan.model';
 import { DnsConfig } from '../dns/dns.model';
+import { DdnsConfig, DdnsStatus } from '../ddns/ddns.model';
 
 export type Lifecycle =
   'booting' | 'ready' | 'maintenance' | 'degraded' | 'needs_setup';
@@ -60,6 +61,8 @@ export interface PublicState {
   };
   wan: WanPublicState;
   dns: DnsConfig;
+  ddns_config?: DdnsConfig;
+  ddns_status?: DdnsStatus;
   active_operation?: PublicOperation | null;
   last_user_operation?: LastOperation | null;
   last_system_error?: DomainError | null;

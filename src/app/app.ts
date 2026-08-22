@@ -11,6 +11,7 @@ import { PortsComponent } from './ports/ports.component';
 import { SystemComponent } from './system/system.component';
 import { DiagnosticsComponent } from './diagnostics/diagnostics.component';
 import { DnsComponent } from './dns/dns.component';
+import { DdnsComponent } from './ddns/ddns.component';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,7 @@ import { DnsComponent } from './dns/dns.component';
     SystemComponent,
     DiagnosticsComponent,
     DnsComponent,
+    DdnsComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

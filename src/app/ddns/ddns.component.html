@@ -1,0 +1,85 @@
+<section class="card">
+  <h2>DDNS Settings</h2>
+  
+  <div class="checkbox-group">
+    <label>
+      <input type="checkbox" [(ngModel)]="config().enabled" />
+      Enable DDNS
+    </label>
+  </div>
+
+  @if (config().enabled) {
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="provider" value="cloudflare" [(ngModel)]="config().provider" />
+        Cloudflare
+      </label>
+      <label>
+        <input type="radio" name="provider" value="duck_dns" [(ngModel)]="config().provider" />
+        DuckDNS
+      </label>
+    </div>
+
+    @if (config().provider === 'cloudflare') {
+      <div class="provider-form">
+        <label>
+          Zone ID
+          <input type="text" [(ngModel)]="config().cloudflare!.zone_id" />
+        </label>
+        <label>
+          Record ID
+          <span class="help-text">Found in Cloudflare dashboard → DNS → edit record → URL</span>
+          <input type="text" [(ngModel)]="config().cloudflare!.record_id" />
+        </label>
+        <label>
+          API Token
+          <input type="password" [(ngModel)]="config().cloudflare!.api_token" />
+        </label>
+        <label>
+          Hostname
+          <input type="text" [(ngModel)]="config().cloudflare!.hostname" placeholder="home.example.com" />
+        </label>
+      </div>
+    }
+
+    @if (config().provider === 'duck_dns') {
+      <div class="provider-form">
+        <label>
+          Token
+          <input type="password" [(ngModel)]="config().duckdns!.token" />
+        </label>
+        <label>
+          Domain
+          <div class="input-suffix">
+            <input type="text" [(ngModel)]="config().duckdns!.domain" />
+            <span>.duckdns.org</span>
+          </div>
+        </label>
+      </div>
+    }
+  }
+
+  <div class="status-block">
+    @if (store.ddnsStatus().last_update_ts) {
+      <p [class.error]="!!store.ddnsStatus().last_error" [class.success]="!store.ddnsStatus().last_error">
+        Last updated: {{ timeAgo(store.ddnsStatus().last_update_ts) }} → {{ store.ddnsStatus().last_ip }}
+      </p>
+      @if (store.ddnsStatus().last_error) {
+        <span class="error-badge">Error: {{ store.ddnsStatus().last_error }}</span>
+      }
+    } @else {
+      <p>Never updated</p>
+    }
+  </div>
+
+  <div class="actions">
+    <button (click)="save()" [disabled]="uneticStore.saving()">Save</button>
+    <button (click)="testConnection()" [disabled]="uneticStore.saving()">Test Connection</button>
+  </div>
+
+  @if (testResult()) {
+    <p class="test-result" [class.success]="testResult()!.success" [class.error]="!testResult()!.success">
+      {{ testResult()!.message }}
+    </p>
+  }
+</section>

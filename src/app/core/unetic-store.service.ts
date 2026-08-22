@@ -9,7 +9,7 @@ export class UneticStore implements OnDestroy {
   readonly state = signal<PublicState | null>(null);
   readonly systemInfo = signal<SystemInfo | null>(null);
   readonly activeTab = signal<
-    'wifi' | 'wan' | 'devices' | 'ports' | 'system' | 'diagnostics' | 'dns'
+    'wifi' | 'wan' | 'devices' | 'ports' | 'system' | 'diagnostics' | 'dns' | 'ddns'
   >('wifi');
 
   readonly connected = signal(false);
@@ -21,6 +21,9 @@ export class UneticStore implements OnDestroy {
   );
 
   readonly traffic = computed(() => this.state()?.traffic ?? { ifaces: {}, devices: {} });
+
+  readonly ddnsConfig = computed(() => this.state()?.ddns_config);
+  readonly ddnsStatus = computed(() => this.state()?.ddns_status);
 
   private deviceHistory = new Map<string, number[]>();
   private ifaceHistory = new Map<string, number[]>();
