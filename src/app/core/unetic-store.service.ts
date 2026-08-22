@@ -3,6 +3,7 @@ import { Injectable, OnDestroy, computed, signal } from '@angular/core';
 import { SystemInfo } from '../system/system.model';
 import { ApiEnvelope, PublicState } from '../core/models';
 import { UbusClient } from '../core/ubus-client.service';
+import { APP_CONSTANTS } from '../core/constants';
 
 @Injectable({ providedIn: 'root' })
 export class UneticStore implements OnDestroy {
@@ -143,7 +144,7 @@ export class UneticStore implements OnDestroy {
     this.reconnectTimer = window.setTimeout(() => {
       this.reconnectTimer = undefined;
       void this.connect();
-    }, 1000);
+    }, APP_CONSTANTS.UBUS_RECONNECT_MS);
   }
 
   private async simpleMutation(method: string): Promise<void> {
@@ -174,7 +175,7 @@ export class UneticStore implements OnDestroy {
         if (this.subscriptionId) {
           void this.ubus.call('state.subscribe.continue', { subscription_id: this.subscriptionId }).catch(() => {});
         }
-      }, 4 * 60 * 1000);
+      }, APP_CONSTANTS.UBUS_SSE_CONTINUE_MS);
 
       await this.ubus.subscribe(
         (value) => this.acceptIncomingState(value),
@@ -228,7 +229,7 @@ export class UneticStore implements OnDestroy {
         }
         this.scheduleReconnect();
       });
-    }, 5000);
+    }, APP_CONSTANTS.POLLING_INTERVAL_MS);
   }
 
   private acceptIncomingState(value: unknown): void {

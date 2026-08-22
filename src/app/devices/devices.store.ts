@@ -3,6 +3,7 @@ import { Device, PortForward } from './devices.model';
 import { ApiEnvelope } from '../core/models';
 import { UbusClient } from '../core/ubus-client.service';
 import { UneticStore } from '../core/unetic-store.service';
+import { APP_CONSTANTS } from '../core/constants';
 
 @Injectable({ providedIn: 'root' })
 export class DevicesStore implements OnDestroy {
@@ -78,7 +79,7 @@ export class DevicesStore implements OnDestroy {
     await this.fetchDevices();
   }
 
-  startPolling(intervalMs = 5000): void {
+  startPolling(intervalMs = APP_CONSTANTS.POLLING_INTERVAL_MS): void {
     this.stopPolling();
     void this.fetchDevices();
     this.pollingTimer = window.setInterval(() => {

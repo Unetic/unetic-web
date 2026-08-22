@@ -2,6 +2,7 @@ import { Injectable, OnDestroy, signal } from '@angular/core';
 import { PortInfo } from './ports.model';
 import { ApiEnvelope } from '../core/models';
 import { UbusClient } from '../core/ubus-client.service';
+import { APP_CONSTANTS } from '../core/constants';
 
 @Injectable({ providedIn: 'root' })
 export class PortsStore implements OnDestroy {
@@ -49,7 +50,7 @@ export class PortsStore implements OnDestroy {
     return [];
   }
 
-  startPolling(intervalMs = 5000): void {
+  startPolling(intervalMs = APP_CONSTANTS.POLLING_INTERVAL_MS): void {
     this.stopPolling();
     void this.fetchPorts();
     this.pollingTimer = window.setInterval(() => {
