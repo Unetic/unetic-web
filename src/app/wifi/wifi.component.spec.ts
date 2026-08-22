@@ -154,20 +154,22 @@ describe('WifiComponent', () => {
     mockWifiStore.canSave.set(false);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector(
+    const buttons = fixture.nativeElement.querySelectorAll(
       'button',
-    ) as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
+    ) as NodeListOf<HTMLButtonElement>;
+    const saveButton = Array.from(buttons).find(b => b.textContent?.includes('Save') || b.textContent?.includes('Applying'));
+    expect(saveButton!.disabled).toBe(true);
   });
 
   it('calls saveConfig when save button is clicked', () => {
     mockWifiStore.canSave.set(true);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector(
+    const buttons = fixture.nativeElement.querySelectorAll(
       'button',
-    ) as HTMLButtonElement;
-    button.click();
+    ) as NodeListOf<HTMLButtonElement>;
+    const saveButton = Array.from(buttons).find(b => b.textContent?.includes('Save') || b.textContent?.includes('Applying'));
+    saveButton!.click();
 
     expect(mockWifiStore.saveConfig).toHaveBeenCalled();
   });

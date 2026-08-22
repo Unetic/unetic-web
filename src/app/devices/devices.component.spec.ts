@@ -58,7 +58,7 @@ describe('DevicesComponent', () => {
         ip: '192.168.1.50',
         hostname: 'Alice-iPhone',
         connection_type: 'wifi',
-        connection: { type: 'Wireless', signal_pct: 80 },
+        connection: { type: 'Wireless', signal_pct: 80, signal_dbm: -50, distance_m: 2.5 },
       },
       {
         mac: 'aa:bb:cc:dd:ee:ff',
@@ -90,7 +90,7 @@ describe('DevicesComponent', () => {
     expect(row1Cols[0]).toContain('↓');
     expect(row1Cols[1]).toBe('192.168.1.50');
     expect(row1Cols[2]).toBe('00:11:22:33:44:55');
-    expect(row1Cols[3]).toBe('Wi-Fi (80%)');
+    expect(row1Cols[3]).toBe('Wi-Fi (2.5m)');
     expect(row1Cols[4]).toBe('Register'); // Since uuid is not provided, it shows Register
 
     // Second row without hostname -> "Unknown Device"

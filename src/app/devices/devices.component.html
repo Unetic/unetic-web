@@ -60,9 +60,16 @@
                 <code>{{ device.mac }}</code>
               </td>
               <td class="col-connection">
-                @if ($any(device.connection)?.type === 'ViaExtender') {
-                  <span class="badge">
-                    <i class="bi-router"></i> Via Extender {{ getExtenderInfo($any(device.connection).extender_mac) }}
+                @if ($any(device.connection)?.type === 'Wireless') {
+                  <span class="badge text-bg-primary">
+                    Wi-Fi ({{ $any(device.connection).distance_m | number:'1.1-1' }}m)
+                  </span>
+                } @else if ($any(device.connection)?.type === 'ViaExtender') {
+                  <span class="badge text-bg-info">
+                    <i class="bi-router"></i> Via Extender
+                    @if ($any(device.connection).distance_m !== undefined) {
+                      ({{ $any(device.connection).distance_m | number:'1.1-1' }}m)
+                    }
                   </span>
                 } @else {
                   <span class="badge">{{ getConnectionLabel(device) }}</span>

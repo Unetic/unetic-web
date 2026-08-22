@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 import { DevicesStore } from '../devices/devices.store';
 import { Device, PortForward } from './devices.model';
 import { UneticStore } from '../core/unetic-store.service';
@@ -10,7 +11,7 @@ import { UbusClient } from '../core/ubus-client.service';
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [FormsModule, SparklineComponent],
+  imports: [FormsModule, SparklineComponent, DecimalPipe],
   templateUrl: './devices.component.html',
   styleUrl: './devices.component.scss',
 })

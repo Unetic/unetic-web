@@ -6,8 +6,8 @@ export interface PortForward {
 
 export type DeviceConnection = 
   | { type: 'Wired'; port_id: number }
-  | { type: 'Wireless'; signal_pct: number }
-  | { type: 'ViaExtender'; extender_mac: string; signal_pct?: number }
+  | { type: 'Wireless'; signal_pct: number; signal_dbm: number; distance_m: number }
+  | { type: 'ViaExtender'; extender_mac: string; signal_pct?: number; signal_dbm?: number; distance_m?: number }
   | { type: 'Unknown' };
 
 export interface Device {
